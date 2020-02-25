@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="nuxt项目部署的心得 心得罗列 服务器端口 nuxt配置文件 nginx配置以及一些问题 pm2常见操作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nuxt项目部署的心得">
+<meta property="og:url" content="http://yoursite.com/2020/02/25/nuxt%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E7%9A%84%E5%9D%91/index.html">
+<meta property="og:site_name" content="John的博客">
+<meta property="og:description" content="nuxt项目部署的心得 心得罗列 服务器端口 nuxt配置文件 nginx配置以及一些问题 pm2常见操作">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://wellkun.com:8982/images/1582636582221-48209.png">
+<meta property="og:image" content="http://wellkun.com:8982/images/1582637323527-74667.png">
+<meta property="og:image" content="http://wellkun.com:8982/download/picture/1581502007107-36180.png">
+<meta property="article:published_time" content="2020-02-25T12:54:21.000Z">
+<meta property="article:modified_time" content="2020-02-25T13:54:30.866Z">
+<meta property="article:author" content="John">
+<meta property="article:tag" content="nuxt">
+<meta property="article:tag" content="项目部署">
+<meta property="article:tag" content="nginx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://wellkun.com:8982/images/1582636582221-48209.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/25/nuxt%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E7%9A%84%E5%9D%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>nuxt项目部署的心得 | John的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">John的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/nuxt%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E7%9A%84%E5%9D%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="John的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          nuxt项目部署的心得
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-25 20:54:21 / Modified: 21:54:30" itemprop="dateCreated datePublished" datetime="2020-02-25T20:54:21+08:00">2020-02-25</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="nuxt项目部署的心得"><a href="#nuxt项目部署的心得" class="headerlink" title="nuxt项目部署的心得"></a>nuxt项目部署的心得</h1><hr>
+<h3 id="心得罗列"><a href="#心得罗列" class="headerlink" title="心得罗列"></a>心得罗列</h3><ul>
+<li>服务器端口</li>
+<li>nuxt配置文件</li>
+<li>nginx配置以及一些问题</li>
+<li>pm2常见操作<a id="more"></a>
+</li>
+</ul>
+<hr>
+<h4 id="项目部署流程"><a href="#项目部署流程" class="headerlink" title="项目部署流程"></a>项目部署流程</h4><ol>
+<li>配置好 <strong>package.json</strong></li>
+<li>在本地使用<code>npm run build</code></li>
+<li>上传文件 <code>.nuxt</code> <code>static</code> <code>server</code> <code>nuxt.config.json</code> <code>package.json</code></li>
+<li>服务端使用<code>unzip</code>解压后，使用<code>cnpm install</code>安装依赖模块</li>
+<li>进入<code>server</code>目录，使用<code>pm2 start app.js</code>运行后端（前后端分离，服务器文件放在server目录下面，进入文件为<code>app.js</code>）</li>
+<li>使用<code>cd ..</code>回到项目目录下，使用<code>pm2 start npm --name &quot;projectName&quot; -- run start</code>,接下来就可以正常访问了</li>
+</ol>
+<hr>
+<h4 id="服务器端口问题"><a href="#服务器端口问题" class="headerlink" title="服务器端口问题"></a>服务器端口问题</h4><ul>
+<li>在使用前需要将项目中前后端使用的端口开放，题主使用的是<strong>阿里云轻量应用服务器</strong>，如下所示 <img src="http://wellkun.com:8982/images/1582636582221-48209.png" alt=""><br>将你需要开放的端口填入，记住前后端的端口都要，开放后可以使用<code>tcping</code>这个工具测试端口是否开放成功，工具下载链接 <a href="https://elifulkerson.com/projects/tcping.php" target="_blank" rel="noopener">tcping官方下载地址</a>，如果是64位的可以直接点击这里下载<a href="http://wellkun.com:8982/download/document/tcping64.exe" target="_blank" rel="noopener">tcping64下载地址</a>，测试结果如下，<img src="http://wellkun.com:8982/images/1582637323527-74667.png" alt=""><h4 id="nuxt配置文件"><a href="#nuxt配置文件" class="headerlink" title="nuxt配置文件"></a>nuxt配置文件</h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">   &#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"workDir"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0"</span>,</span><br><span class="line">  <span class="attr">"description"</span>: <span class="string">"this is my workDir!"</span>,</span><br><span class="line">  <span class="attr">"author"</span>: <span class="string">"John"</span>,</span><br><span class="line">  <span class="attr">"private"</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"dev"</span>: <span class="string">"cross-env NODE_ENV=development nodemon server/index.js --watch server"</span>,</span><br><span class="line">    <span class="attr">"build"</span>: <span class="string">"nuxt build"</span>,</span><br><span class="line">    <span class="attr">"start"</span>: <span class="string">"cross-env NODE_ENV=production node server/index.js"</span>,</span><br><span class="line">    <span class="attr">"generate"</span>: <span class="string">"cross-env nuxt generate"</span>,</span><br><span class="line">    <span class="attr">"lint"</span>: <span class="string">"eslint --ext .js,.vue --ignore-path .gitignore ."</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"config"</span>: &#123;</span><br><span class="line">    <span class="attr">"nuxt"</span>: &#123;</span><br><span class="line">      <span class="attr">"host"</span>: <span class="string">"0.0.0.0"</span>,</span><br><span class="line">      <span class="attr">"port"</span>: <span class="number">3000</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"dependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"@nuxtjs/axios"</span>: <span class="string">"^5.3.6"</span>,</span><br><span class="line">    <span class="attr">"cookie-universal-nuxt"</span>: <span class="string">"^2.1.1"</span>,</span><br><span class="line">    <span class="attr">"cross-env"</span>: <span class="string">"^5.2.0"</span>,</span><br><span class="line">    <span class="attr">"element-ui"</span>: <span class="string">"^2.4.11"</span>,</span><br><span class="line">    <span class="attr">"glob"</span>: <span class="string">"^7.1.6"</span>,</span><br><span class="line">    <span class="attr">"jsonwebtoken"</span>: <span class="string">"^8.5.1"</span>,</span><br><span class="line">    <span class="attr">"koa"</span>: <span class="string">"^2.6.2"</span>,</span><br><span class="line">    <span class="attr">"koa-bodyparser"</span>: <span class="string">"^4.2.1"</span>,</span><br><span class="line">    <span class="attr">"koa-compose"</span>: <span class="string">"^4.1.0"</span>,</span><br><span class="line">    <span class="attr">"koa-jwt2"</span>: <span class="string">"^1.0.3"</span>,</span><br><span class="line">    <span class="attr">"koa-multer"</span>: <span class="string">"^1.0.2"</span>,</span><br><span class="line">    <span class="attr">"koa-router"</span>: <span class="string">"^7.4.0"</span>,</span><br><span class="line">    <span class="attr">"koa-static"</span>: <span class="string">"^5.0.0"</span>,</span><br><span class="line">    <span class="attr">"koa2-cors"</span>: <span class="string">"^2.0.6"</span>,</span><br><span class="line">    <span class="attr">"md5"</span>: <span class="string">"^2.2.1"</span>,</span><br><span class="line">    <span class="attr">"mongoose"</span>: <span class="string">"^5.8.9"</span>,</span><br><span class="line">    <span class="attr">"nuxt"</span>: <span class="string">"^2.0.0"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"devDependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"@nuxtjs/eslint-config"</span>: <span class="string">"^1.0.1"</span>,</span><br><span class="line">    <span class="attr">"@nuxtjs/eslint-module"</span>: <span class="string">"^1.0.0"</span>,</span><br><span class="line">    <span class="attr">"babel-eslint"</span>: <span class="string">"^10.0.1"</span>,</span><br><span class="line">    <span class="attr">"babel-plugin-component"</span>: <span class="string">"^1.1.1"</span>,</span><br><span class="line">    <span class="attr">"eslint"</span>: <span class="string">"^6.1.0"</span>,</span><br><span class="line">    <span class="attr">"eslint-config-prettier"</span>: <span class="string">"^4.1.0"</span>,</span><br><span class="line">    <span class="attr">"eslint-plugin-nuxt"</span>: <span class="string">"&gt;=0.4.2"</span>,</span><br><span class="line">    <span class="attr">"eslint-plugin-prettier"</span>: <span class="string">"^3.0.1"</span>,</span><br><span class="line">    <span class="attr">"nodemon"</span>: <span class="string">"^1.18.9"</span>,</span><br><span class="line">    <span class="attr">"prettier"</span>: <span class="string">"^1.16.4"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>主要是这个config这个地方，如果出现端口开放后，端口可以ping通，项目也可以正常启动，但是无法正常访问，则添加这段可以解决<h4 id="nginx配置文件"><a href="#nginx配置文件" class="headerlink" title="nginx配置文件"></a>nginx配置文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">upstream nuxtserver1 &#123;</span><br><span class="line">    server 127.0.0.1:3000;</span><br><span class="line">&#125;</span><br><span class="line">server &#123;</span><br><span class="line">    listen 80 default_server;</span><br><span class="line">    listen [::]:80 default_server;</span><br><span class="line">    server_name www.wellkun.com &#x2F;&#x2F;此处填你的域名</span><br><span class="line">    root &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;</span><br><span class="line">    include &#x2F;etc&#x2F;nginx&#x2F;defaulty.d&#x2F;*.conf;</span><br><span class="line">    location &#x2F; &#123;</span><br><span class="line">        proxy_pass http:&#x2F;&#x2F;nuxtserver1;</span><br><span class="line">        index index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>接着使用 <code>nginx -s reload</code> 重启nginx，如果重启过程中抛出了这个错误<code>nginx: [emerg] open() &quot;/etc/nginx/nginx.conf&quot; failed (2: No such file or directory)</code>，先执行<code>nginx c /etc/nginx/nginx.conf</code>，然后再次执行<code>nginx -s reload</code>即可<h4 id="pm2常见操作"><a href="#pm2常见操作" class="headerlink" title="pm2常见操作"></a>pm2常见操作</h4></li>
+<li><code>pm2 start &#39;projectName/id/all&#39;</code> <strong>启动项目</strong></li>
+<li><code>pm2 restart &#39;projectName/id/all&#39;</code> <strong>重启项目</strong></li>
+<li><code>pm2 delete &#39;projectName/id/all&#39;</code> <strong>删除项目</strong></li>
+<li><code>pm2 start npm --name &#39;projectName&#39; -- run start</code> <strong>nuxt项目的运行</strong><h4 id="Last-but-not-least"><a href="#Last-but-not-least" class="headerlink" title="Last but not least"></a>Last but not least</h4></li>
+<li>如果有任何问题,可以联系<br><img src="http://wellkun.com:8982/download/picture/1581502007107-36180.png" alt=""></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/nuxt/" rel="tag"># nuxt</a>
+              <a href="/tags/%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2/" rel="tag"># 项目部署</a>
+              <a href="/tags/nginx/" rel="tag"># nginx</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/02/22/weekly_1/" rel="prev" title="weekly_1">
+      <i class="fa fa-chevron-left"></i> weekly_1
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#nuxt项目部署的心得"><span class="nav-number">1.</span> <span class="nav-text">nuxt项目部署的心得</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#心得罗列"><span class="nav-number">1.0.1.</span> <span class="nav-text">心得罗列</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#项目部署流程"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">项目部署流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#服务器端口问题"><span class="nav-number">1.0.1.2.</span> <span class="nav-text">服务器端口问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nuxt配置文件"><span class="nav-number">1.0.1.3.</span> <span class="nav-text">nuxt配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nginx配置文件"><span class="nav-number">1.0.1.4.</span> <span class="nav-text">nginx配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pm2常见操作"><span class="nav-number">1.0.1.5.</span> <span class="nav-text">pm2常见操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Last-but-not-least"><span class="nav-number">1.0.1.6.</span> <span class="nav-text">Last but not least</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+<a href="http://www.beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备18052753号</a><br/>
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.6.0
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
