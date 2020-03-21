@@ -46,15 +46,22 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Dear John">
-<meta property="og:url" content="http://yoursite.com/tags/%E8%B5%B7%E6%AD%A5/index.html">
+  <meta name="description" content="关于水壶问题的数学解法问题描述有两个水壶甲和乙,容量分别为 X 和 Y,如何用这两个水壶取出体积为 Z 的水(水可以放在两个水壶)?(X Y Z都是整数)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="水壶问题">
+<meta property="og:url" content="http://yoursite.com/2020/03/21/%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/index.html">
 <meta property="og:site_name" content="Dear John">
+<meta property="og:description" content="关于水壶问题的数学解法问题描述有两个水壶甲和乙,容量分别为 X 和 Y,如何用这两个水壶取出体积为 Z 的水(水可以放在两个水壶)?(X Y Z都是整数)">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-03-21T09:27:18.000Z">
+<meta property="article:modified_time" content="2020-03-21T10:29:24.401Z">
 <meta property="article:author" content="John">
+<meta property="article:tag" content="数学思维">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="gcd">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/tags/%E8%B5%B7%E6%AD%A5/">
+<link rel="canonical" href="http://yoursite.com/2020/03/21/%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/">
 
 
 <script id="page-configurations">
@@ -62,11 +69,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false
+    isPost: true
   };
 </script>
 
-  <title>Tag: 起步 | Dear John</title>
+  <title>水壶问题 | Dear John</title>
   
 
 
@@ -160,50 +167,113 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h1 class="collection-header">起步
-          <small>Tag</small>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/21/%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dear John">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          水壶问题
         </h1>
-      </div>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-03-21 17:27:18 / Modified: 18:29:24" itemprop="dateCreated datePublished" datetime="2020-03-21T17:27:18+08:00">2020-03-21</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <h1 class="collection-header">2020</h1>
+        <h1 id="关于水壶问题的数学解法"><a href="#关于水壶问题的数学解法" class="headerlink" title="关于水壶问题的数学解法"></a>关于水壶问题的数学解法</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>有两个水壶甲和乙,容量分别为 X 和 Y,如何用这两个水壶取出体积为 Z 的水(水可以放在两个水壶)?(<code>X</code> <code>Y</code> <code>Z</code>都是整数)</p>
+<a id="more"></a>
+
+<h2 id="数学解法"><a href="#数学解法" class="headerlink" title="数学解法"></a>数学解法</h2><ol>
+<li>首先我们要确认最后的结果就是两个水壶的水体积之和是 <code>Z</code>,每次操作的情况如下:</li>
+</ol>
+<ul>
+<li>往空水壶里面加满水<br>这种情况就是两个水壶水的总容量加 <code>X或Y</code></li>
+<li>倒掉满水壶水<br>这种情况就是两个水壶水的总容量减去 <code>X或Y</code></li>
+<li>往不满的水壶里加满水<br>这种情况操作没有意义,直接忽略</li>
+<li>一个水壶往另一个水壶倒水<br>这种情况两个水壶水的总容量不变</li>
+</ul>
+<p>如果可以做到,那么 Z 可以表示为 <code>aX+bY = Z</code>,其中<code>a</code> <code>b</code>为整数</p>
+<ol start="2">
+<li>为什么可以这么写呢?<br>首先,按照上面提到的,每次操作后要么是加一个<code>X</code>或者<code>Y</code>,要么减少一个<code>X</code>或者<code>Y</code>,或者不变,最后就是对容量为<code>X</code>的水壶操作了 m 次,其中倒满水的次数减去倒掉一壶水的次数为<code>a</code>,对容量为<code>Y</code>的水壶操作了<code>n</code>次,其中倒满水的次数减去倒掉一壶水的次数为<code>b</code>,最后就是甲水壶操作后对于水总体积的贡献为<code>aX</code>,乙水壶操作后对于水的总体积贡献为<code>bY</code>,两壶共贡献了<code>aX+bY</code>体积的水,如果<code>aX+bY=Z</code>那么可以取出体积为<code>Z</code>的水,否则不可以</li>
+<li><code>aX+bY=Z</code>这个式子表达为如果存在这样的整数<code>a</code>和<code>b</code>, 且<code>k=gcd(X,Y)</code>,那么如果<code>Z%k=0</code>,则表示存在这样的<code>a</code>和<code>b</code>,原题得证.具体证明可以<a href="https://baike.baidu.com/item/%E8%A3%B4%E8%9C%80%E5%AE%9A%E7%90%86/5186593?fr=aladdin" target="_blank" rel="noopener">裴蜀定理</a>.</li>
+</ol>
+<h2 id="收获心得"><a href="#收获心得" class="headerlink" title="收获心得"></a>收获心得</h2><p>我最初是直接取思考使用类似取穷举得方式,排除掉几类特殊情况,可以分为大容器向小容器倒水和小容器向大容器倒水,操作有所不同,但是判定条件一样,即每次判定三种情况:</p>
+<ul>
+<li>小容器水是否满足条件</li>
+<li>大容器水是否满足条件</li>
+<li>两容器水之和是否瞒住条件</li>
+</ul>
+<p>小容器向大容器倒水时当小容器得水能全部导入大容器且大容器刚好满还没有满足<code>Z</code>时,即可以判定为不符合条件.<br>大容器向小容器倒水时当大容器倒完水后,剩余得水体积和小容器容量一样是,还没有满足条件,则可以判定为不符合条件,<br>当两个循环都跳出来后,直接返回<code>false</code><br>这种做法一种是直观逻辑做法,以过程去推,可行,但是性能非常差,而上面提到的做法将这个问题给数学化,抽象化,以结果去推过程,性能比较好.</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-03-04T11:08:20+08:00"
-              content="2020-03-04">
-          03-04
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E5%AD%A6%E6%80%9D%E7%BB%B4/" rel="tag"># 数学思维</a>
+              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+              <a href="/tags/gcd/" rel="tag"># gcd</a>
+          </div>
 
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2020/03/04/TypeScript%E5%AD%A6%E4%B9%A0_%E8%B5%B7%E6%AD%A5/" itemprop="url">
-            <span itemprop="name">TypeScript学习记录1</span>
-          </a>
-      </h2>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/04/TypeScript%E5%AD%A6%E4%B9%A0_%E8%B5%B7%E6%AD%A5/" rel="prev" title="TypeScript学习记录1">
+      <i class="fa fa-chevron-left"></i> TypeScript学习记录1
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
+  
+  
+  
 
-    </div>
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
@@ -254,6 +324,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#关于水壶问题的数学解法"><span class="nav-number">1.</span> <span class="nav-text">关于水壶问题的数学解法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数学解法"><span class="nav-number">1.2.</span> <span class="nav-text">数学解法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#收获心得"><span class="nav-number">1.3.</span> <span class="nav-text">收获心得</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
