@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="vue 数据双向绑定的原理以及实现vue数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看vue的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是vue最基础的双向数据绑定">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vue双向绑定原理及实现">
+<meta property="og:url" content="http://yoursite.com/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Dear John">
+<meta property="og:description" content="vue 数据双向绑定的原理以及实现vue数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看vue的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是vue最基础的双向数据绑定">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-04-09T09:07:04.000Z">
+<meta property="article:modified_time" content="2020-04-09T10:24:35.397Z">
+<meta property="article:author" content="John">
+<meta property="article:tag" content="vue">
+<meta property="article:tag" content="数据双向绑">
+<meta property="article:tag" content="实现">
+<meta property="article:tag" content="原理">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>vue双向绑定原理及实现 | Dear John</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Dear John</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dear John">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          vue双向绑定原理及实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-09 17:07:04 / Modified: 18:24:35" itemprop="dateCreated datePublished" datetime="2020-04-09T17:07:04+08:00">2020-04-09</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="vue-数据双向绑定的原理以及实现"><a href="#vue-数据双向绑定的原理以及实现" class="headerlink" title="vue 数据双向绑定的原理以及实现"></a>vue 数据双向绑定的原理以及实现</h1><p><strong>vue</strong>数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看<strong>vue</strong>的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是<strong>vue</strong>最基础的双向数据绑定</p>
+<a id="more"></a>
+
+<h2 id="基本原理图"><a href="#基本原理图" class="headerlink" title="基本原理图"></a>基本原理图</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">graph TB</span><br><span class="line">A[Vue实例] --&gt; B[observe]</span><br><span class="line">A --&gt; C[complie]</span><br><span class="line">C --依赖搜集和数据绑定--&gt; F</span><br><span class="line">B --通知变化--&gt; G</span><br><span class="line">F[Watcher]--更新视图--&gt;G[updata]</span><br></pre></td></tr></table></figure>
+
+<p>这是我对于双向绑定的初步认识,大概就是这么个过程</p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>先给出一个基本的<strong>HTML</strong>结构</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h1</span> <span class="attr">v-bind</span>=<span class="string">"test"</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">v-model</span>=<span class="string">"test"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">v-click</span>=<span class="string">"increase"</span>&gt;</span>增加<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后再新建一个<strong>Vue</strong>对象</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> app = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">        el:<span class="string">"#app"</span>,</span><br><span class="line">        data:&#123;</span><br><span class="line">            test:<span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        methods:&#123;</span><br><span class="line">            increase: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="keyword">this</span>.test = <span class="keyword">this</span>.test + <span class="number">1</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>我们在另一个<code>js</code>文件里面新建一个<code>Vue</code>类</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vue</span></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(opt)&#123;</span><br><span class="line">        <span class="keyword">this</span>._init(opt)</span><br><span class="line">    &#125;</span><br><span class="line">    _init()&#123;</span><br><span class="line">        <span class="keyword">this</span>.$opt = opt</span><br><span class="line">        <span class="keyword">this</span>.$methods = opt.methods</span><br><span class="line">        <span class="keyword">this</span>.$el = <span class="built_in">document</span>.querySelector(opt.el)</span><br><span class="line">        <span class="keyword">this</span>.$data = opt.data</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>._binding = &#123;&#125; <span class="comment">//这个是依赖搜集容器,后面会讲</span></span><br><span class="line">        <span class="keyword">this</span>._observer(<span class="keyword">this</span>.$data)</span><br><span class="line">        <span class="keyword">this</span>._complie(<span class="keyword">this</span>.$el)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在实现<code>_observer</code>函数和<code>complie</code>函数之前我们要先了解一个 api<code>Object.defineProperty</code>,这个 api 是实现数据双向绑定的关键所在</p>
+<blockquote>
+<p>Object.defineProperty(obj,key,chara)<br>第一个参数是传入的对象<br>第二个参数是对象的属性名<br>第三个参数是这个属性的特征值,如下:<br>configurable //是否可删除<br>emunerable //是否可枚举<br>writable //是否可写<br>set 和 get 函数</p>
+</blockquote>
+<p>接下来我们要实现<code>_observer</code>函数和<code>complie</code>函数去实现数据的绑定和依赖搜集,</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">_observer(obj) &#123;</span><br><span class="line">      <span class="keyword">let</span> value</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">          <span class="keyword">if</span> (obj.hasOwnProperty(key)) &#123;</span><br><span class="line">              value = obj[key]</span><br><span class="line">              <span class="keyword">if</span> (<span class="keyword">typeof</span> value == <span class="string">'object'</span>) &#123;</span><br><span class="line">                  <span class="keyword">this</span>._observer(value)</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">this</span>._binding[key] = &#123;</span><br><span class="line">                  _directives: []</span><br><span class="line">              &#125;</span><br><span class="line"></span><br><span class="line">              <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>.$data, key, &#123;</span><br><span class="line">                  configurable: <span class="literal">true</span>,</span><br><span class="line">                  enumerable: <span class="literal">true</span>,</span><br><span class="line">                  <span class="keyword">get</span>: function () &#123;</span><br><span class="line">                      <span class="keyword">return</span> value</span><br><span class="line">                  &#125;,</span><br><span class="line">                  <span class="keyword">set</span>: (newVal)=&gt; &#123;</span><br><span class="line">                      <span class="keyword">if</span> (value !== newVal) &#123;</span><br><span class="line">                          value = newVal</span><br><span class="line">                          <span class="keyword">this</span>._binding[key]._directives.map(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">                              item.update()</span><br><span class="line">                          &#125;)</span><br><span class="line">                      &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;)</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数主要是用来解析<code>data</code>以及驱动数据更细,这个函数里面使用的<code>_binding</code>就是依赖搜集的容器,可以看到<code>data</code>的每个属性都在<code>_binding</code>里面绑定过了,同时在某个属性值更改的时候,即触发了<code>set</code>函数,首先就跟新 <code>data</code>对应的值,然后遍历对应的依赖数组,即所有使用过这个属性的地方都会执行<code>updata</code>函数,通知其更新,这个<code>updata</code>函数是<code>Watcher</code>原型上面的一个方法,这个数组里面放的就是一个个<code>Watcher</code>对应的实例对象</p>
+<p><code>Watcher</code>类是在依赖搜集的时候,如果 dom 节点使用了<code>data</code>,则会将这个 dom 节点对应的信息使用<code>Watcher</code>类声明并存储在<code>_binding</code>对用的数组里,具体参数的意义请看<code>_complie</code>函数,<code>Watcher</code>类的实现如下如下:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Watcher</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(name,el,vm,exp,attr) &#123;</span><br><span class="line">        <span class="keyword">this</span>.exp = exp</span><br><span class="line">        <span class="keyword">this</span>.el = el</span><br><span class="line">        <span class="keyword">this</span>.name = name</span><br><span class="line">        <span class="keyword">this</span>.attr = attr</span><br><span class="line">        <span class="keyword">this</span>.vm =vm</span><br><span class="line">        <span class="keyword">this</span>.update()</span><br><span class="line">    &#125;</span><br><span class="line">    update() &#123;</span><br><span class="line">        <span class="keyword">this</span>.el[<span class="keyword">this</span>.attr] = <span class="keyword">this</span>.vm.$data[<span class="keyword">this</span>.exp]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>_complie</code>函数的实现如下:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">_complie(root) &#123;</span><br><span class="line">        <span class="keyword">let</span> nodes = root.children</span><br><span class="line">        <span class="keyword">let</span> len = nodes.length</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> index = <span class="number">0</span>; index &lt; len; index++) &#123;</span><br><span class="line">            <span class="keyword">let</span> node = nodes[index]</span><br><span class="line">            <span class="keyword">if</span> (node.children.length) &#123;</span><br><span class="line">                <span class="keyword">this</span>._complie(node)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-bind'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-bind'</span>)</span><br><span class="line">                <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'text'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'innerHTML'</span>))</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-click'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-click'</span>)</span><br><span class="line">                node.onclick = <span class="function">(<span class="params">(</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span>  <span class="keyword">this</span>.$methods[attr].bind(<span class="keyword">this</span>.$data)</span><br><span class="line"></span><br><span class="line">                &#125;)()</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-model'</span>) &amp;&amp; (node.tagName == <span class="string">'INPUT'</span> || node.tagName == <span class="string">'TEXTAREA'</span>)) &#123;</span><br><span class="line">                node.addEventListener(<span class="string">'input'</span>, (<span class="function">(<span class="params">key</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-model'</span>)</span><br><span class="line">                    <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'input'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'value'</span>))</span><br><span class="line">                    <span class="keyword">return</span> <span class="function"><span class="params">()</span>=&gt;</span>&#123;</span><br><span class="line">                        <span class="keyword">this</span>.$data[attr] = nodes[key].value</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)(index))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>_complie</code>函数会依次遍历<code>Vue</code>实例下所有的dom节点,并且对含有<code>v-bind</code>、<code>v-model</code>、<code>v-click</code>指令的dom节点进行解析，也就是在这个过程实现了依赖搜集，即数据绑定，如函数所示，依次遍历所有的节点，如果含有<code>v-ckick</code>,则给这个节点绑定<code>click</code>事件并且将Vue实例中<code>methods</code>中对应得方法赋予,如果遇到<code>v-bind</code>,则将这个节点对用得信息使用<code>Watcher</code>类实例化,然后执行<code>updata</code>函数将其可视化,同时这个<code>Watcher</code>实例也被放到了对用得依赖数组里面,<code>v-model</code>也一样.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>基于这几个函数,就实现了一个简单得双向数据绑定过程,整个源码可以查看<a href="https://github.com/Johnkun1314/Demo/tree/master/vueBind" target="_blank" rel="noopener">我的github</a>,所以下次再谈到<code>vue</code>的数据双向绑定,不再是那句敷衍的:使用<code>Object.defineProperty</code>实现的,一定要自己动手去写出来,不然虽然看明白了,到真正的去讲的时候,还是会讲的不知所谓</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/vue/" rel="tag"># vue</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%8F%8C%E5%90%91%E7%BB%91/" rel="tag"># 数据双向绑</a>
+              <a href="/tags/%E5%AE%9E%E7%8E%B0/" rel="tag"># 实现</a>
+              <a href="/tags/%E5%8E%9F%E7%90%86/" rel="tag"># 原理</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/21/%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/" rel="prev" title="水壶问题">
+      <i class="fa fa-chevron-left"></i> 水壶问题
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#vue-数据双向绑定的原理以及实现"><span class="nav-number">1.</span> <span class="nav-text">vue 数据双向绑定的原理以及实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本原理图"><span class="nav-number">1.1.</span> <span class="nav-text">基本原理图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">1.2.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+<a href="http://www.beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备18052753号</a><br/>
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.6.0
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
