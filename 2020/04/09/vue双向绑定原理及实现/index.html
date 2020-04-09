@@ -53,14 +53,16 @@
 <meta property="og:site_name" content="Dear John">
 <meta property="og:description" content="vue 数据双向绑定的原理以及实现vue数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看vue的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是vue最基础的双向数据绑定">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://wellkun.com:8982/images/1586428461024-89763.png">
 <meta property="article:published_time" content="2020-04-09T09:07:04.000Z">
-<meta property="article:modified_time" content="2020-04-09T10:49:29.045Z">
+<meta property="article:modified_time" content="2020-04-09T10:57:09.956Z">
 <meta property="article:author" content="John">
 <meta property="article:tag" content="vue">
 <meta property="article:tag" content="数据双向绑">
 <meta property="article:tag" content="实现">
 <meta property="article:tag" content="原理">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://wellkun.com:8982/images/1586428461024-89763.png">
 
 <link rel="canonical" href="http://yoursite.com/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/">
 
@@ -197,7 +199,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-04-09 17:07:04 / Modified: 18:49:29" itemprop="dateCreated datePublished" datetime="2020-04-09T17:07:04+08:00">2020-04-09</time>
+              <time title="Created: 2020-04-09 17:07:04 / Modified: 18:57:09" itemprop="dateCreated datePublished" datetime="2020-04-09T17:07:04+08:00">2020-04-09</time>
             </span>
 
           
@@ -221,8 +223,7 @@
         <h1 id="vue-数据双向绑定的原理以及实现"><a href="#vue-数据双向绑定的原理以及实现" class="headerlink" title="vue 数据双向绑定的原理以及实现"></a>vue 数据双向绑定的原理以及实现</h1><p><strong>vue</strong>数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看<strong>vue</strong>的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是<strong>vue</strong>最基础的双向数据绑定</p>
 <a id="more"></a>
 
-<h2 id="基本原理图"><a href="#基本原理图" class="headerlink" title="基本原理图"></a>基本原理图</h2><!-- ![原理图](http://wellkun.com:8982/images/1586428461024-89763.png) -->
-
+<h2 id="基本原理图"><a href="#基本原理图" class="headerlink" title="基本原理图"></a>基本原理图</h2><p><img src="http://wellkun.com:8982/images/1586428461024-89763.png" alt="原理图"></p>
 <p>这是我对于双向绑定的初步认识,大概就是这么个过程</p>
 <h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>先给出一个基本的<strong>HTML</strong>结构</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h1</span> <span class="attr">v-bind</span>=<span class="string">"test"</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">v-model</span>=<span class="string">"test"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">v-click</span>=<span class="string">"increase"</span>&gt;</span>增加<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
