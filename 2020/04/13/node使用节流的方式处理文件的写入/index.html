@@ -54,7 +54,7 @@
 <meta property="og:description" content="node 使用节流的思维处理文件的写入 问题我们在写博客使用网图或者开发使用网图的时候，可能出现了图片未授权被拦截的情况，所以我就搭建了一个自己的图片存储服务,开始的时候不考虑使用数据库，直接使用一个 JSON 文件去存储文件的相关信息，但是这样操作带来了一个问题:如果我一次性上传多张图片,由于 nodejs 的异步处理,导致后来的图片读取的 JSON 文件是为更改的图片,最后导致只能写入一条信息">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-04-13T06:29:40.000Z">
-<meta property="article:modified_time" content="2020-04-13T07:06:46.814Z">
+<meta property="article:modified_time" content="2020-04-13T07:11:52.416Z">
 <meta property="article:author" content="John">
 <meta property="article:tag" content="node">
 <meta property="article:tag" content="并发">
@@ -195,7 +195,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-04-13 14:29:40 / Modified: 15:06:46" itemprop="dateCreated datePublished" datetime="2020-04-13T14:29:40+08:00">2020-04-13</time>
+              <time title="Created: 2020-04-13 14:29:40 / Modified: 15:11:52" itemprop="dateCreated datePublished" datetime="2020-04-13T14:29:40+08:00">2020-04-13</time>
             </span>
 
           
@@ -218,7 +218,7 @@
       
         <h1 id="node-使用节流的思维处理文件的写入"><a href="#node-使用节流的思维处理文件的写入" class="headerlink" title="node 使用节流的思维处理文件的写入"></a>node 使用节流的思维处理文件的写入</h1><ul>
 <li><p>问题<br>我们在写博客使用网图或者开发使用网图的时候，可能出现了图片未授权被拦截的情况，所以我就搭建了一个自己的图片存储服务,开始的时候不考虑使用数据库，直接使用一个 JSON 文件去存储文件的相关信息，但是这样操作带来了一个问题:<strong>如果我一次性上传多张图片,由于 nodejs 的异步处理,导致后来的图片读取的 JSON 文件是为更改的图片,最后导致只能写入一条信息.</strong></p>
-</li>
+<a id="more"></a></li>
 <li><p>问题解析<br>虽然 node 是单进程,但是这只是对于主进程来说,主线程只是负责事件循环队列的处理,每当有新的请求到来的时候,都会讲这个请求压入事件循环队列,然后由主线程在线程池中分配一个线程,当第一个线程读取完<code>JSON</code>文件后,并未及时的处理完文件信息并写入,而后续的线程在发现<code>readFile</code>这个接口被释放后,会直接占用,这就导致了所有的线程读取的都是原始<code>JSON</code>文件,而最后执行<code>writeFile</code>的线程所写入的内容就是最终的内容,而这时只写入了一条数据,为了解决这个问题,最后我不得已采用了<code>monngoDB</code>去存储数据,但是,对于我那溺弱的学生机,显然很受伤.</p>
 </li>
 <li><p>灵感来源<br>最近在做一个微信小程序的时候,也有个地方需要一次性上传多张图片,然后将,在图片上传完后,将得到的路径信息返回,本地再次发起请求去将信息写入数据库,所以我就想我那个图片服务的站点能不能也这样把图片的写入和数据的写入分开,下面是实现方案</p>
