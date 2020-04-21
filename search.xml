@@ -135,6 +135,47 @@
       </tags>
   </entry>
   <entry>
+    <title>vue双向绑定原理及实现</title>
+    <url>/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h1 id="vue-数据双向绑定的原理以及实现"><a href="#vue-数据双向绑定的原理以及实现" class="headerlink" title="vue 数据双向绑定的原理以及实现"></a>vue 数据双向绑定的原理以及实现</h1><p><strong>vue</strong>数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看<strong>vue</strong>的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是<strong>vue</strong>最基础的双向数据绑定</p>
+<a id="more"></a>
+
+<h2 id="基本原理图"><a href="#基本原理图" class="headerlink" title="基本原理图"></a>基本原理图</h2><p><img src="http://wellkun.com:8982/images/1586428461024-89763.png" alt="原理图"></p>
+<p>这是我对于双向绑定的初步认识,大概就是这么个过程</p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>先给出一个基本的<strong>HTML</strong>结构</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h1</span> <span class="attr">v-bind</span>=<span class="string">"test"</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">v-model</span>=<span class="string">"test"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">v-click</span>=<span class="string">"increase"</span>&gt;</span>增加<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后再新建一个<strong>Vue</strong>对象</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> app = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">        el:<span class="string">"#app"</span>,</span><br><span class="line">        data:&#123;</span><br><span class="line">            test:<span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        methods:&#123;</span><br><span class="line">            increase: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="keyword">this</span>.test = <span class="keyword">this</span>.test + <span class="number">1</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>我们在另一个<code>js</code>文件里面新建一个<code>Vue</code>类</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vue</span></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(opt)&#123;</span><br><span class="line">        <span class="keyword">this</span>._init(opt)</span><br><span class="line">    &#125;</span><br><span class="line">    _init()&#123;</span><br><span class="line">        <span class="keyword">this</span>.$opt = opt</span><br><span class="line">        <span class="keyword">this</span>.$methods = opt.methods</span><br><span class="line">        <span class="keyword">this</span>.$el = <span class="built_in">document</span>.querySelector(opt.el)</span><br><span class="line">        <span class="keyword">this</span>.$data = opt.data</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>._binding = &#123;&#125; <span class="comment">//这个是依赖搜集容器,后面会讲</span></span><br><span class="line">        <span class="keyword">this</span>._observer(<span class="keyword">this</span>.$data)</span><br><span class="line">        <span class="keyword">this</span>._complie(<span class="keyword">this</span>.$el)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在实现<code>_observer</code>函数和<code>complie</code>函数之前我们要先了解一个 api<code>Object.defineProperty</code>,这个 api 是实现数据双向绑定的关键所在</p>
+<blockquote>
+<p>Object.defineProperty(obj,key,chara)<br>第一个参数是传入的对象<br>第二个参数是对象的属性名<br>第三个参数是这个属性的特征值,如下:<br>configurable //是否可删除<br>emunerable //是否可枚举<br>writable //是否可写<br>set 和 get 函数</p>
+</blockquote>
+<p>接下来我们要实现<code>_observer</code>函数和<code>complie</code>函数去实现数据的绑定和依赖搜集,</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">_observer(obj) &#123;</span><br><span class="line">      <span class="keyword">let</span> value</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">          <span class="keyword">if</span> (obj.hasOwnProperty(key)) &#123;</span><br><span class="line">              value = obj[key]</span><br><span class="line">              <span class="keyword">if</span> (<span class="keyword">typeof</span> value == <span class="string">'object'</span>) &#123;</span><br><span class="line">                  <span class="keyword">this</span>._observer(value)</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">this</span>._binding[key] = &#123;</span><br><span class="line">                  _directives: []</span><br><span class="line">              &#125;</span><br><span class="line"></span><br><span class="line">              <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>.$data, key, &#123;</span><br><span class="line">                  configurable: <span class="literal">true</span>,</span><br><span class="line">                  enumerable: <span class="literal">true</span>,</span><br><span class="line">                  <span class="keyword">get</span>: function () &#123;</span><br><span class="line">                      <span class="keyword">return</span> value</span><br><span class="line">                  &#125;,</span><br><span class="line">                  <span class="keyword">set</span>: (newVal)=&gt; &#123;</span><br><span class="line">                      <span class="keyword">if</span> (value !== newVal) &#123;</span><br><span class="line">                          value = newVal</span><br><span class="line">                          <span class="keyword">this</span>._binding[key]._directives.map(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">                              item.update()</span><br><span class="line">                          &#125;)</span><br><span class="line">                      &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;)</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数主要是用来解析<code>data</code>以及驱动数据更细,这个函数里面使用的<code>_binding</code>就是依赖搜集的容器,可以看到<code>data</code>的每个属性都在<code>_binding</code>里面绑定过了,同时在某个属性值更改的时候,即触发了<code>set</code>函数,首先就跟新 <code>data</code>对应的值,然后遍历对应的依赖数组,即所有使用过这个属性的地方都会执行<code>updata</code>函数,通知其更新,这个<code>updata</code>函数是<code>Watcher</code>原型上面的一个方法,这个数组里面放的就是一个个<code>Watcher</code>对应的实例对象</p>
+<p><code>Watcher</code>类是在依赖搜集的时候,如果 dom 节点使用了<code>data</code>,则会将这个 dom 节点对应的信息使用<code>Watcher</code>类声明并存储在<code>_binding</code>对用的数组里,具体参数的意义请看<code>_complie</code>函数,<code>Watcher</code>类的实现如下如下:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Watcher</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(name,el,vm,exp,attr) &#123;</span><br><span class="line">        <span class="keyword">this</span>.exp = exp</span><br><span class="line">        <span class="keyword">this</span>.el = el</span><br><span class="line">        <span class="keyword">this</span>.name = name</span><br><span class="line">        <span class="keyword">this</span>.attr = attr</span><br><span class="line">        <span class="keyword">this</span>.vm =vm</span><br><span class="line">        <span class="keyword">this</span>.update()</span><br><span class="line">    &#125;</span><br><span class="line">    update() &#123;</span><br><span class="line">        <span class="keyword">this</span>.el[<span class="keyword">this</span>.attr] = <span class="keyword">this</span>.vm.$data[<span class="keyword">this</span>.exp]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>_complie</code>函数的实现如下:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">_complie(root) &#123;</span><br><span class="line">        <span class="keyword">let</span> nodes = root.children</span><br><span class="line">        <span class="keyword">let</span> len = nodes.length</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> index = <span class="number">0</span>; index &lt; len; index++) &#123;</span><br><span class="line">            <span class="keyword">let</span> node = nodes[index]</span><br><span class="line">            <span class="keyword">if</span> (node.children.length) &#123;</span><br><span class="line">                <span class="keyword">this</span>._complie(node)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-bind'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-bind'</span>)</span><br><span class="line">                <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'text'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'innerHTML'</span>))</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-click'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-click'</span>)</span><br><span class="line">                node.onclick = <span class="function">(<span class="params">(</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span>  <span class="keyword">this</span>.$methods[attr].bind(<span class="keyword">this</span>.$data)</span><br><span class="line"></span><br><span class="line">                &#125;)()</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-model'</span>) &amp;&amp; (node.tagName == <span class="string">'INPUT'</span> || node.tagName == <span class="string">'TEXTAREA'</span>)) &#123;</span><br><span class="line">                node.addEventListener(<span class="string">'input'</span>, (<span class="function">(<span class="params">key</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-model'</span>)</span><br><span class="line">                    <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'input'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'value'</span>))</span><br><span class="line">                    <span class="keyword">return</span> <span class="function"><span class="params">()</span>=&gt;</span>&#123;</span><br><span class="line">                        <span class="keyword">this</span>.$data[attr] = nodes[key].value</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)(index))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>_complie</code>函数会依次遍历<code>Vue</code>实例下所有的dom节点,并且对含有<code>v-bind</code>、<code>v-model</code>、<code>v-click</code>指令的dom节点进行解析，也就是在这个过程实现了依赖搜集，即数据绑定，如函数所示，依次遍历所有的节点，如果含有<code>v-ckick</code>,则给这个节点绑定<code>click</code>事件并且将Vue实例中<code>methods</code>中对应得方法赋予,如果遇到<code>v-bind</code>,则将这个节点对用得信息使用<code>Watcher</code>类实例化,然后执行<code>updata</code>函数将其可视化,同时这个<code>Watcher</code>实例也被放到了对用得依赖数组里面,<code>v-model</code>也一样.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>基于这几个函数,就实现了一个简单得双向数据绑定过程,整个源码可以查看<a href="https://github.com/Johnkun1314/Demo/tree/master/vueBind" target="_blank" rel="noopener">我的github</a>,所以下次再谈到<code>vue</code>的数据双向绑定,不再是那句敷衍的:使用<code>Object.defineProperty</code>实现的,一定要自己动手去写出来,不然虽然看明白了,到真正的去讲的时候,还是会讲的不知所谓</p>
+]]></content>
+      <tags>
+        <tag>vue</tag>
+        <tag>数据双向绑</tag>
+        <tag>实现</tag>
+        <tag>原理</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>vue实现登陆验证表单组件</title>
     <url>/2020/04/20/vue%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E9%AA%8C%E8%AF%81%E8%A1%A8%E5%8D%95%E7%BB%84%E4%BB%B6/</url>
     <content><![CDATA[<h1 id="问题叙述"><a href="#问题叙述" class="headerlink" title="问题叙述"></a>问题叙述</h1><p>现在得开发大都会去使用一些 UI 库如<code>Elelemt-UI</code>、<code>Ant Design</code>或者<code>Cube-UI</code>等一些解决方案,但是往往这些库只是提供一些通用化的组件,如果我们需要定制开发,那么自定义组件是必不可少的,所以,我这里实现了一套简化的<code>Element-UI</code>的<code>Form</code>表单组件,具体使用和<code>Element-UI</code>一样.</p>
@@ -181,47 +222,6 @@
       </tags>
   </entry>
   <entry>
-    <title>vue双向绑定原理及实现</title>
-    <url>/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<h1 id="vue-数据双向绑定的原理以及实现"><a href="#vue-数据双向绑定的原理以及实现" class="headerlink" title="vue 数据双向绑定的原理以及实现"></a>vue 数据双向绑定的原理以及实现</h1><p><strong>vue</strong>数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看<strong>vue</strong>的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是<strong>vue</strong>最基础的双向数据绑定</p>
-<a id="more"></a>
-
-<h2 id="基本原理图"><a href="#基本原理图" class="headerlink" title="基本原理图"></a>基本原理图</h2><p><img src="http://wellkun.com:8982/images/1586428461024-89763.png" alt="原理图"></p>
-<p>这是我对于双向绑定的初步认识,大概就是这么个过程</p>
-<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>先给出一个基本的<strong>HTML</strong>结构</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h1</span> <span class="attr">v-bind</span>=<span class="string">"test"</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">v-model</span>=<span class="string">"test"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">v-click</span>=<span class="string">"increase"</span>&gt;</span>增加<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>然后再新建一个<strong>Vue</strong>对象</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> app = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">        el:<span class="string">"#app"</span>,</span><br><span class="line">        data:&#123;</span><br><span class="line">            test:<span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        methods:&#123;</span><br><span class="line">            increase: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="keyword">this</span>.test = <span class="keyword">this</span>.test + <span class="number">1</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
-
-<p>我们在另一个<code>js</code>文件里面新建一个<code>Vue</code>类</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vue</span></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(opt)&#123;</span><br><span class="line">        <span class="keyword">this</span>._init(opt)</span><br><span class="line">    &#125;</span><br><span class="line">    _init()&#123;</span><br><span class="line">        <span class="keyword">this</span>.$opt = opt</span><br><span class="line">        <span class="keyword">this</span>.$methods = opt.methods</span><br><span class="line">        <span class="keyword">this</span>.$el = <span class="built_in">document</span>.querySelector(opt.el)</span><br><span class="line">        <span class="keyword">this</span>.$data = opt.data</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>._binding = &#123;&#125; <span class="comment">//这个是依赖搜集容器,后面会讲</span></span><br><span class="line">        <span class="keyword">this</span>._observer(<span class="keyword">this</span>.$data)</span><br><span class="line">        <span class="keyword">this</span>._complie(<span class="keyword">this</span>.$el)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在实现<code>_observer</code>函数和<code>complie</code>函数之前我们要先了解一个 api<code>Object.defineProperty</code>,这个 api 是实现数据双向绑定的关键所在</p>
-<blockquote>
-<p>Object.defineProperty(obj,key,chara)<br>第一个参数是传入的对象<br>第二个参数是对象的属性名<br>第三个参数是这个属性的特征值,如下:<br>configurable //是否可删除<br>emunerable //是否可枚举<br>writable //是否可写<br>set 和 get 函数</p>
-</blockquote>
-<p>接下来我们要实现<code>_observer</code>函数和<code>complie</code>函数去实现数据的绑定和依赖搜集,</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">_observer(obj) &#123;</span><br><span class="line">      <span class="keyword">let</span> value</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">          <span class="keyword">if</span> (obj.hasOwnProperty(key)) &#123;</span><br><span class="line">              value = obj[key]</span><br><span class="line">              <span class="keyword">if</span> (<span class="keyword">typeof</span> value == <span class="string">'object'</span>) &#123;</span><br><span class="line">                  <span class="keyword">this</span>._observer(value)</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">this</span>._binding[key] = &#123;</span><br><span class="line">                  _directives: []</span><br><span class="line">              &#125;</span><br><span class="line"></span><br><span class="line">              <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>.$data, key, &#123;</span><br><span class="line">                  configurable: <span class="literal">true</span>,</span><br><span class="line">                  enumerable: <span class="literal">true</span>,</span><br><span class="line">                  <span class="keyword">get</span>: function () &#123;</span><br><span class="line">                      <span class="keyword">return</span> value</span><br><span class="line">                  &#125;,</span><br><span class="line">                  <span class="keyword">set</span>: (newVal)=&gt; &#123;</span><br><span class="line">                      <span class="keyword">if</span> (value !== newVal) &#123;</span><br><span class="line">                          value = newVal</span><br><span class="line">                          <span class="keyword">this</span>._binding[key]._directives.map(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">                              item.update()</span><br><span class="line">                          &#125;)</span><br><span class="line">                      &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;)</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个函数主要是用来解析<code>data</code>以及驱动数据更细,这个函数里面使用的<code>_binding</code>就是依赖搜集的容器,可以看到<code>data</code>的每个属性都在<code>_binding</code>里面绑定过了,同时在某个属性值更改的时候,即触发了<code>set</code>函数,首先就跟新 <code>data</code>对应的值,然后遍历对应的依赖数组,即所有使用过这个属性的地方都会执行<code>updata</code>函数,通知其更新,这个<code>updata</code>函数是<code>Watcher</code>原型上面的一个方法,这个数组里面放的就是一个个<code>Watcher</code>对应的实例对象</p>
-<p><code>Watcher</code>类是在依赖搜集的时候,如果 dom 节点使用了<code>data</code>,则会将这个 dom 节点对应的信息使用<code>Watcher</code>类声明并存储在<code>_binding</code>对用的数组里,具体参数的意义请看<code>_complie</code>函数,<code>Watcher</code>类的实现如下如下:</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Watcher</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(name,el,vm,exp,attr) &#123;</span><br><span class="line">        <span class="keyword">this</span>.exp = exp</span><br><span class="line">        <span class="keyword">this</span>.el = el</span><br><span class="line">        <span class="keyword">this</span>.name = name</span><br><span class="line">        <span class="keyword">this</span>.attr = attr</span><br><span class="line">        <span class="keyword">this</span>.vm =vm</span><br><span class="line">        <span class="keyword">this</span>.update()</span><br><span class="line">    &#125;</span><br><span class="line">    update() &#123;</span><br><span class="line">        <span class="keyword">this</span>.el[<span class="keyword">this</span>.attr] = <span class="keyword">this</span>.vm.$data[<span class="keyword">this</span>.exp]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>_complie</code>函数的实现如下:</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">_complie(root) &#123;</span><br><span class="line">        <span class="keyword">let</span> nodes = root.children</span><br><span class="line">        <span class="keyword">let</span> len = nodes.length</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> index = <span class="number">0</span>; index &lt; len; index++) &#123;</span><br><span class="line">            <span class="keyword">let</span> node = nodes[index]</span><br><span class="line">            <span class="keyword">if</span> (node.children.length) &#123;</span><br><span class="line">                <span class="keyword">this</span>._complie(node)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-bind'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-bind'</span>)</span><br><span class="line">                <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'text'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'innerHTML'</span>))</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-click'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-click'</span>)</span><br><span class="line">                node.onclick = <span class="function">(<span class="params">(</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span>  <span class="keyword">this</span>.$methods[attr].bind(<span class="keyword">this</span>.$data)</span><br><span class="line"></span><br><span class="line">                &#125;)()</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-model'</span>) &amp;&amp; (node.tagName == <span class="string">'INPUT'</span> || node.tagName == <span class="string">'TEXTAREA'</span>)) &#123;</span><br><span class="line">                node.addEventListener(<span class="string">'input'</span>, (<span class="function">(<span class="params">key</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-model'</span>)</span><br><span class="line">                    <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'input'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'value'</span>))</span><br><span class="line">                    <span class="keyword">return</span> <span class="function"><span class="params">()</span>=&gt;</span>&#123;</span><br><span class="line">                        <span class="keyword">this</span>.$data[attr] = nodes[key].value</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)(index))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>_complie</code>函数会依次遍历<code>Vue</code>实例下所有的dom节点,并且对含有<code>v-bind</code>、<code>v-model</code>、<code>v-click</code>指令的dom节点进行解析，也就是在这个过程实现了依赖搜集，即数据绑定，如函数所示，依次遍历所有的节点，如果含有<code>v-ckick</code>,则给这个节点绑定<code>click</code>事件并且将Vue实例中<code>methods</code>中对应得方法赋予,如果遇到<code>v-bind</code>,则将这个节点对用得信息使用<code>Watcher</code>类实例化,然后执行<code>updata</code>函数将其可视化,同时这个<code>Watcher</code>实例也被放到了对用得依赖数组里面,<code>v-model</code>也一样.</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>基于这几个函数,就实现了一个简单得双向数据绑定过程,整个源码可以查看<a href="https://github.com/Johnkun1314/Demo/tree/master/vueBind" target="_blank" rel="noopener">我的github</a>,所以下次再谈到<code>vue</code>的数据双向绑定,不再是那句敷衍的:使用<code>Object.defineProperty</code>实现的,一定要自己动手去写出来,不然虽然看明白了,到真正的去讲的时候,还是会讲的不知所谓</p>
-]]></content>
-      <tags>
-        <tag>vue</tag>
-        <tag>数据双向绑</tag>
-        <tag>实现</tag>
-        <tag>原理</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>weekly_2</title>
     <url>/2020/02/26/weekly-2/</url>
     <content><![CDATA[<h1 id="第二周周报"><a href="#第二周周报" class="headerlink" title="第二周周报"></a>第二周周报</h1><hr>
@@ -262,6 +262,57 @@
 <li>请比较wxml/wxss和生成后的html/css文件之前的差异，并与scss预处理器、babel等技术进行比较？<a id="more"></a>
 </li>
 </ol>
+]]></content>
+      <tags>
+        <tag>创新实践</tag>
+        <tag>周报</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>weekly_1</title>
+    <url>/2020/02/22/weekly_1/</url>
+    <content><![CDATA[<h2 id="第一周周报"><a href="#第一周周报" class="headerlink" title="第一周周报"></a>第一周周报</h2><hr>
+<ul>
+<li>桌面互联网与移动互联网的区别与优劣<ul>
+<li>它们都是互联网网站，但是，两者的设计理念上却存在着很大的差异，而这，主要是由于屏幕的大小和设备所具有的接口开放所引起的，拿淘宝网来说，移动设备的优点在于可以随时随地的购物，桌面网站则不行，由于移动端通常具有通话功能，所以可以直接在站点里面直接发起拨打的请求，pc端则不行，由于屏幕大小的差异，两者所展现的内容篇幅有很大的差异，PC端由于屏幕大，主界面课展示的内容更多，所以其重点在于能让用户一眼就能够看到有用的信息，比如淘宝网提供的常见快捷生活服务入口就放在右下角，这是大部分人最容易最容易注意到的地方，而移动端则不一样，移动端注重在有限的首屏空间内展示尽可能多的有用信息如 淘宝网首页，都是一些大类入口，不像PC端能分得那么的细致。同时由于移动端各种大小和宽高比需要去做各种响应式布局，传统的PC端设计理念已经不能用于移动端，如淘宝网的首页的导航栏，用在移动端是肯定不行的，移动端直接在底部制作一个导航连去替代顶部导航栏，这也更加的便于用户的操作！同时移动端和pc端的渲染能力也差很多，我自己制作的CSS3动画在移动端几乎是不能渲染的！<a id="more"></a></li>
+</ul>
+</li>
+<li>H5站点与微信公众号的区别与优劣<ul>
+<li>H5站点其本质上面还是一个web站点，可以运行在任何的符合H5标准的容器内，而微信公众号则只能运行在微信里面，如我所使用的 ==阿里云域名与商标== 这个微信公众号，他能给我推送各种相关消息，但是如果点击某条消息，则会打开一个H5应用，如果点击 ==域名注册== ，则会打开一个对应的H5站点，这个站点打开的速度非常的快，这个公众号的功能主要是给我传递各种阿里云域名商标相关的活动和消息，用于日常推广，而H5则不一样，相比于以前，H5可以完成以前无法完成的一些功能，<strong>酷狗</strong>在线音乐播放器，这在以前是无法完成的，在网络条件允许的前提下，他的使用体验几乎和原生的应用相当，可以播放各种音频，MV，甚至可以本地缓存。</li>
+</ul>
+</li>
+<li>移动原生App与微信公众号、H5站点的区别与优劣<ul>
+<li>由于市面上各种品牌商对于安卓的个性化优化与适配，因此原生App的开发成本是比较高的，而且在提交的时候，需要提交到各个应用市场里面去审核，发布的过程是非常繁琐的，而微信公众号则只需要提交给微信审核，H5站点甚至只需要域名进行备案即可使用，但是原生App有着无可比拟的运行流畅度，这里点名表扬<strong>支付宝</strong>，他的启动速度真的是快。但是App需要下载安装，会占用大量的内存空间，如我经常使用的<strong>王者荣耀</strong>，已经占用了接近6个G了，而H5和微信公众号则不会，都是在线使用，原生App还有很多烦人的地方，比如<strong>腾讯QQ</strong>，他的个人主页部分经常会出现红点，表示有新的功能或者活动，但是我根本就不想去点击，但是由于强迫症，我又不得不去点击，这就很烦人了。</li>
+</ul>
+</li>
+<li>小程序与原生App、微信公众号、H5站点的区别与优劣<ul>
+<li>小程序是近几年出现的，其主要的优点就是即点即用，用完就走，完全不会占用本地的内存空间，而且其使用体验是接近于原生App的，但是首次加载的时候会比较的就，这就优点难受了对于强迫症患者而言，但是随着5G到来，我估计以后也会是秒开了。像我手机里加入收藏的小程序<strong>腾讯视频</strong>，在使用H5观看视频的时候，基本上都是==下载客户端观看完整版==，而且，最终要的就是，他不会出现莫名其妙的红点让我去点，每次点开都是一些垃圾信息推广，小程序的开发成本较低，只需要开发一套代码，即可所有设备都适用。</li>
+</ul>
+</li>
+<li>微信小程序与微信公众号、微信服务号的区别与优劣<ul>
+<li>这三者最主要的区别在于定位不一样，微信小程序重功能，微信公众号重消息推广，而微信服务号重服务，如前面提到的<strong>腾讯视频</strong>，主要是提供各种视频播发，而公众号则是推广消息，如<strong>浙江青春</strong>、<strong>杭州发布</strong>，我寒假期间对于浙江的具体疫情了解都是通过这两个公众号的，而服务号，如<strong>王卡助手</strong>，曾经风靡一时的腾讯王卡，就是通过这个服务号进行申请和开通激活的，当然，服务号还提供了公众号所具有的功能，是更加全面的公众号。</li>
+</ul>
+</li>
+<li>微信小程序与其他小程序的区别与优劣<ul>
+<li>他们其实没有什么主要的区别，非要说优劣，那就是各自有<strong>本土作战</strong>的优势，如我使用<strong>腾讯视频</strong>我肯定会打开微信小程序，当然，支付宝小程序也不会有这个，如我使用<strong>饿了么</strong>，我肯定会打开支付宝，为什么呢，因为<strong>饿了么</strong>是支付宝旗下的，在登陆的时候，几乎是一点击登录一键授权即可，而不需要像微信小程序那样，首先授权微信账户，然后又需要授权手机号，然后获取验证码，输入验证码，再登陆，这就非常的繁琐，所以说各种有各自的流量群体，但是微信小程序相对来说是开放式的，会提供各种功能样式的小程序，而支付宝小程序注服务，主要是各种提供生活服务的小程序，两者的设计理念和战略重心有所不同。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>什么是小程序？<ul>
+<li>小程序是一种体积小、即点即用、用完就走，且使用体验接近原生App的应用</li>
+</ul>
+</li>
+<li>为什么需要使用小程序<ul>
+<li>小程序“用完即走”，各个小程序相互关联，使用十分方便。</li>
+</ul>
+</li>
+<li>小程序的应用场景是什么<ul>
+<li>公众号关联、电商、实体服务、工具类</li>
+</ul>
+</li>
+</ul>
 ]]></content>
       <tags>
         <tag>创新实践</tag>
@@ -345,57 +396,6 @@
       <tags>
         <tag>创新实践</tag>
         <tag>uniapp</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>weekly_1</title>
-    <url>/2020/02/22/weekly_1/</url>
-    <content><![CDATA[<h2 id="第一周周报"><a href="#第一周周报" class="headerlink" title="第一周周报"></a>第一周周报</h2><hr>
-<ul>
-<li>桌面互联网与移动互联网的区别与优劣<ul>
-<li>它们都是互联网网站，但是，两者的设计理念上却存在着很大的差异，而这，主要是由于屏幕的大小和设备所具有的接口开放所引起的，拿淘宝网来说，移动设备的优点在于可以随时随地的购物，桌面网站则不行，由于移动端通常具有通话功能，所以可以直接在站点里面直接发起拨打的请求，pc端则不行，由于屏幕大小的差异，两者所展现的内容篇幅有很大的差异，PC端由于屏幕大，主界面课展示的内容更多，所以其重点在于能让用户一眼就能够看到有用的信息，比如淘宝网提供的常见快捷生活服务入口就放在右下角，这是大部分人最容易最容易注意到的地方，而移动端则不一样，移动端注重在有限的首屏空间内展示尽可能多的有用信息如 淘宝网首页，都是一些大类入口，不像PC端能分得那么的细致。同时由于移动端各种大小和宽高比需要去做各种响应式布局，传统的PC端设计理念已经不能用于移动端，如淘宝网的首页的导航栏，用在移动端是肯定不行的，移动端直接在底部制作一个导航连去替代顶部导航栏，这也更加的便于用户的操作！同时移动端和pc端的渲染能力也差很多，我自己制作的CSS3动画在移动端几乎是不能渲染的！<a id="more"></a></li>
-</ul>
-</li>
-<li>H5站点与微信公众号的区别与优劣<ul>
-<li>H5站点其本质上面还是一个web站点，可以运行在任何的符合H5标准的容器内，而微信公众号则只能运行在微信里面，如我所使用的 ==阿里云域名与商标== 这个微信公众号，他能给我推送各种相关消息，但是如果点击某条消息，则会打开一个H5应用，如果点击 ==域名注册== ，则会打开一个对应的H5站点，这个站点打开的速度非常的快，这个公众号的功能主要是给我传递各种阿里云域名商标相关的活动和消息，用于日常推广，而H5则不一样，相比于以前，H5可以完成以前无法完成的一些功能，<strong>酷狗</strong>在线音乐播放器，这在以前是无法完成的，在网络条件允许的前提下，他的使用体验几乎和原生的应用相当，可以播放各种音频，MV，甚至可以本地缓存。</li>
-</ul>
-</li>
-<li>移动原生App与微信公众号、H5站点的区别与优劣<ul>
-<li>由于市面上各种品牌商对于安卓的个性化优化与适配，因此原生App的开发成本是比较高的，而且在提交的时候，需要提交到各个应用市场里面去审核，发布的过程是非常繁琐的，而微信公众号则只需要提交给微信审核，H5站点甚至只需要域名进行备案即可使用，但是原生App有着无可比拟的运行流畅度，这里点名表扬<strong>支付宝</strong>，他的启动速度真的是快。但是App需要下载安装，会占用大量的内存空间，如我经常使用的<strong>王者荣耀</strong>，已经占用了接近6个G了，而H5和微信公众号则不会，都是在线使用，原生App还有很多烦人的地方，比如<strong>腾讯QQ</strong>，他的个人主页部分经常会出现红点，表示有新的功能或者活动，但是我根本就不想去点击，但是由于强迫症，我又不得不去点击，这就很烦人了。</li>
-</ul>
-</li>
-<li>小程序与原生App、微信公众号、H5站点的区别与优劣<ul>
-<li>小程序是近几年出现的，其主要的优点就是即点即用，用完就走，完全不会占用本地的内存空间，而且其使用体验是接近于原生App的，但是首次加载的时候会比较的就，这就优点难受了对于强迫症患者而言，但是随着5G到来，我估计以后也会是秒开了。像我手机里加入收藏的小程序<strong>腾讯视频</strong>，在使用H5观看视频的时候，基本上都是==下载客户端观看完整版==，而且，最终要的就是，他不会出现莫名其妙的红点让我去点，每次点开都是一些垃圾信息推广，小程序的开发成本较低，只需要开发一套代码，即可所有设备都适用。</li>
-</ul>
-</li>
-<li>微信小程序与微信公众号、微信服务号的区别与优劣<ul>
-<li>这三者最主要的区别在于定位不一样，微信小程序重功能，微信公众号重消息推广，而微信服务号重服务，如前面提到的<strong>腾讯视频</strong>，主要是提供各种视频播发，而公众号则是推广消息，如<strong>浙江青春</strong>、<strong>杭州发布</strong>，我寒假期间对于浙江的具体疫情了解都是通过这两个公众号的，而服务号，如<strong>王卡助手</strong>，曾经风靡一时的腾讯王卡，就是通过这个服务号进行申请和开通激活的，当然，服务号还提供了公众号所具有的功能，是更加全面的公众号。</li>
-</ul>
-</li>
-<li>微信小程序与其他小程序的区别与优劣<ul>
-<li>他们其实没有什么主要的区别，非要说优劣，那就是各自有<strong>本土作战</strong>的优势，如我使用<strong>腾讯视频</strong>我肯定会打开微信小程序，当然，支付宝小程序也不会有这个，如我使用<strong>饿了么</strong>，我肯定会打开支付宝，为什么呢，因为<strong>饿了么</strong>是支付宝旗下的，在登陆的时候，几乎是一点击登录一键授权即可，而不需要像微信小程序那样，首先授权微信账户，然后又需要授权手机号，然后获取验证码，输入验证码，再登陆，这就非常的繁琐，所以说各种有各自的流量群体，但是微信小程序相对来说是开放式的，会提供各种功能样式的小程序，而支付宝小程序注服务，主要是各种提供生活服务的小程序，两者的设计理念和战略重心有所不同。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<ul>
-<li>什么是小程序？<ul>
-<li>小程序是一种体积小、即点即用、用完就走，且使用体验接近原生App的应用</li>
-</ul>
-</li>
-<li>为什么需要使用小程序<ul>
-<li>小程序“用完即走”，各个小程序相互关联，使用十分方便。</li>
-</ul>
-</li>
-<li>小程序的应用场景是什么<ul>
-<li>公众号关联、电商、实体服务、工具类</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>创新实践</tag>
-        <tag>周报</tag>
       </tags>
   </entry>
   <entry>
