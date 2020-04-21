@@ -432,4 +432,40 @@
         <tag>gcd</tag>
       </tags>
   </entry>
+  <entry>
+    <title>&#39;Vuex简单实现&#39;</title>
+    <url>/2020/04/21/Vuex%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>插件通常用来为<code>Vue</code>添加全局功能,插件的添加有以下几种</p>
+<ol>
+<li><p>添加全局方法或者属性。如：vue-custom-element</p>
+</li>
+<li><p>添加全局资源：指令/过滤器/过渡等。如 vue-touch</p>
+</li>
+<li><p>通过全局混入来添加一些组件选项。如 vue-router</p>
+</li>
+<li><p>添加 Vue 实例方法，通过把它们添加到 Vue.prototype 上实现。</p>
+</li>
+<li><p>一个库，提供自己的 API，同时提供上面提到的一个或多个功能。如 vue-router</p>
+</li>
+</ol>
+<p>我们今天实现的就是实现一个简单的<code>Vuex</code>插件,这款插件相信大家在日常<code>vue</code>开发中使用的比较多了</p>
+<a id="more"></a>
+
+<h1 id="具体实现流程"><a href="#具体实现流程" class="headerlink" title="具体实现流程"></a>具体实现流程</h1><ul>
+<li>核心文件<code>store.js</code></li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> Vue</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">install</span>(<span class="params">_Vue</span>)</span>&#123;</span><br><span class="line">    Vue = _Vue</span><br><span class="line">    Vue.mixin(&#123;</span><br><span class="line">        beforeCreate() &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="keyword">this</span>)</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.$options.store)&#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">'1111'</span>)</span><br><span class="line">                Vue.prototype.$store = <span class="keyword">this</span>.$options.store</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Store</span></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>( options = &#123;&#125; )&#123;</span><br><span class="line">        <span class="keyword">this</span>.state = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">            data: options.state || &#123;&#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="keyword">this</span>.mutations = options.mutations || &#123;&#125;</span><br><span class="line">        <span class="keyword">this</span>.actions = options.actions || &#123;&#125;</span><br><span class="line">        options.getters&amp;&amp;<span class="keyword">this</span>.handleGetters(options.getters)</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    commit = <span class="function">(<span class="params">type, data</span>)=&gt;</span>&#123;</span><br><span class="line">        <span class="keyword">const</span> fn = <span class="keyword">this</span>.mutations[type]</span><br><span class="line">        fn(<span class="keyword">this</span>.state, data)</span><br><span class="line">    &#125;</span><br><span class="line">    dispatch = <span class="function">(<span class="params">type, data</span>)=&gt;</span>&#123;</span><br><span class="line">        <span class="keyword">const</span> obj = &#123;</span><br><span class="line">            commit:<span class="keyword">this</span>.commit,</span><br><span class="line">            state:<span class="keyword">this</span>.state</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">const</span> fn = <span class="keyword">this</span>.actions[type]</span><br><span class="line">        fn(obj,data)</span><br><span class="line">    &#125;</span><br><span class="line">    handleGetters(getters)&#123;</span><br><span class="line">        <span class="keyword">this</span>.getters = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">let</span> key <span class="keyword">in</span> getters)&#123;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>.getters, key,&#123;</span><br><span class="line">                <span class="keyword">get</span>:()=&gt;&#123;</span><br><span class="line">                    <span class="keyword">return</span> getters[key](<span class="keyword">this</span>.state)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;Store, install&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是<code>vuex</code>实现的具体代码,根据官方文档,插件安装的时候需要提供<code>install</code>方法,这个<code>install</code>方法主要就是使用混入在每个<code>Vue</code>实例的<code>beforeCreate</code>生命周期函数里面进行判断,如果<code>Vue</code>实例上面已经存在全局<code>store</code>属性,这个<code>store</code>的声明实在<code>main.js</code>里面</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">'vue'</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App.vue'</span></span><br><span class="line"><span class="keyword">import</span> store <span class="keyword">from</span>  <span class="string">'./store/index'</span></span><br><span class="line"></span><br><span class="line">Vue.config.productionTip = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  render: <span class="function"><span class="params">h</span> =&gt;</span> h(App),</span><br><span class="line">  store</span><br><span class="line">&#125;).$mount(<span class="string">'#app'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>即如果<code>Vuex</code>插件已经安装,则将<code>store</code>这个方法挂载到<code>Vue</code>原型上面,下面的<code>Store</code>类是<code>vuex</code>的核心了,可以看到,<code>vuex</code>之所以能实现响应式,是其将 state 注入了一个心得<code>Vue</code>实例中,正是利用了<code>Vue</code>的数据响应式,其实这种思想有点像以前使用的<code>全局总线</code>,即在现有的<code>Vue</code>原型上面挂载一个新的<code>Vue</code>实例,然后再这个新的<code>vue</code>实例上面去实现相关方法.<br>对于<code>mutations</code>和<code>actions</code>,我们通常是使用<code>commit</code>和<code>dispatch</code>去触发的,所以我们在<code>Store</code>类里面实现了<code>commit</code>和<code>dispatch</code>,然后由着两个方法根据传入的参数去找到对应得<code>mutations</code>和<code>actions</code>里面得方法去执行.<br>最后就是<code>getters</code>,<code>getters</code>和其他两个实现有所不同,笔者在这里想了多种得方法去实现,但是都无法实现动态取值或者是能够被更改,最后想到了取值和设置值的本质,即<code>Object.defineProperty</code>,我们只需要使用这个方法,既能实现动态取值以及禁止更改,具体可以看<code>handleGetters</code>,我们在<code>Object.defineProperty</code>里面只设置取值操作,不设置<code>set</code>函数即可.</p>
+<p>最后在<code>store/index.js</code>里面执行<code>Vue.use()</code>安装插件即可!</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><code>vuex</code>的实现是很精妙的,笔者这里只是一个简单的例子,<code>vuex</code>的设计思想对于我们日常开发设计插件或者全局方法是很有帮助的,有种<strong>借力打力</strong>的味道.</p>
+]]></content>
+      <tags>
+        <tag>vue</tag>
+        <tag>vuex</tag>
+      </tags>
+  </entry>
 </search>
