@@ -472,6 +472,7 @@
     <title>&#39;vue优雅的使用svg&#39;</title>
     <url>/2020/05/05/vue%E4%BC%98%E9%9B%85%E7%9A%84%E4%BD%BF%E7%94%A8svg/</url>
     <content><![CDATA[<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>我们在写 vue 项目的时候,使用 svg 图片是不可少的,但是,常规的使用我们每次需要使用的时候,就必须在对应的地方导入一下,然后写上两层标签去使用它,一点都不直观,而且 每次的导入操作都非常的繁琐,所以,我们能不能像使用全局组件一样去使用一个 svg 呢,答案是肯定的!</p>
+<a id="more"></a>
 <h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><ul>
 <li>首先,我们需要安装一个<code>loader</code>,即<code>svg-sprite-loader</code>,这个<code>loader</code>是用来处理 svg 图片的,它可以将我们在页面中所引用的图片拼装成一张雪碧图,这样可以避免多次的图片加载,我们使用 <code>npm i svg-sprite-loader --save-dev</code>去安装这个<code>loader</code></li>
 <li>接着我们在 vue 工程的根目录下面去新建一个<code>vue.config.js</code>,这个是<code>webpack</code>配置文件,它会将我们对于原<code>webpack</code>配置文件的修改和新增并入<code>webpack</code>配置文件,代码如下:</li>
