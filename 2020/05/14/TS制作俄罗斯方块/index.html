@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="任务描述刚刚开始学 TS,边学边做,制作成了第一个 TS 小 Demo 俄罗斯方块,已经挂在我的 gitHub上了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="&#39;TS制作俄罗斯方块&#39;">
+<meta property="og:url" content="http://yoursite.com/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/index.html">
+<meta property="og:site_name" content="Dear John">
+<meta property="og:description" content="任务描述刚刚开始学 TS,边学边做,制作成了第一个 TS 小 Demo 俄罗斯方块,已经挂在我的 gitHub上了">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-14T14:53:36.000Z">
+<meta property="article:modified_time" content="2020-05-15T12:35:04.023Z">
+<meta property="article:author" content="John">
+<meta property="article:tag" content="webpack">
+<meta property="article:tag" content="TS">
+<meta property="article:tag" content="面向对象编程">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>'TS制作俄罗斯方块' | Dear John</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Dear John</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dear John">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          'TS制作俄罗斯方块'
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-05-14 22:53:36" itemprop="dateCreated datePublished" datetime="2020-05-14T22:53:36+08:00">2020-05-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-05-15 20:35:04" itemprop="dateModified" datetime="2020-05-15T20:35:04+08:00">2020-05-15</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="任务描述"><a href="#任务描述" class="headerlink" title="任务描述"></a>任务描述</h2><p>刚刚开始学 TS,边学边做,制作成了第一个 TS 小 Demo 俄罗斯方块,已经挂在<a href="https://github.com/Johnkun1314/TS-Teris" target="_blank" rel="noopener">我的 gitHub</a>上了</p>
+<a id="more"></a>
+
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><p>整个项目分为一下几个模块:</p>
+<ul>
+<li><p>Sqaure<br>这是最基础的方块模块,保存对应方块对象的坐标,颜色以及控制其展示与消失的 SquarePageViewer 示例,同时对于属性的访问都采用了访问器的形式,保证在改变方块示例的相关属性时能够调用其控制类去实时渲染,具体代码参见<code>github</code>的<code>Square.ts</code>.</p>
+</li>
+<li><p>SqaureGruop<br>这个是俄罗斯方块组模块,每个实例都保存其所包含的四个基本方块实例,同时使用一个相对坐标去表示其方块组的形状,我们只需要在这个类中记录每个方块组的中心方块坐标,然后将其他方块的坐标与中心坐标的位置挂钩,每次更新中心坐标,都会对应更新其他方块的坐标,依然是采用访问器的形式实现的,同时这个类还实现了计算俄罗斯方块组旋转后的形状函数以及对外暴露的旋转函数 rotate,具体代码参见<code>github</code>的<code>SquareGroup.ts</code>.</p>
+</li>
+<li><p>SqaurePageViewer<br>这个模块实现了 Iview 这个接口,Iview 接口主要是声明了<code>show</code>和<code>remove</code>着两个方法,这个模块的实例保存其所控制的方块示例的<code>dom</code>节点信息,<code>show</code>方法用于将方块实例的相关属性通过<code>Jquery</code>设置好并添加到对应的页面节点中去,其中宽高是从<code>PageConfig</code>中读取出来的,<code>remove</code>方法就是将该节点从对应 dom 容器中移除,具体代码参见<code>github</code>的<code>SqaurePageViewer.ts</code>.</p>
+</li>
+<li><p>Teris<br>这个模块是用来产生方块组的,我们在这里定义了各个方块组的形状,每个形状对应一个类,同时这个类继承<code>SquareGroup类</code>,主要是因为每个方块在旋转的时候旋转有所区别,如正方形方块组不旋转,T 形和 L 形可以随意旋转,而 I 形和 S 形只能旋转 90°,至于为什么,你实现后去看看方块组旋转时就知道了,我们不在<code>SquareGroup</code>这个类中的<code>rotate</code>方法中去实现,因为如果你后面还要添加一些方块的话,你又需要去修改<code>rotate</code>,改了可能还会影响其他的形状方块,扩展性非常差,每个形状的方块组类的形状的相对坐标你们可以自行定义,但是一定要确认好中心坐标为(0,0),不然旋转会很怪,同时,这个模块里面对外暴露一个<code>createTeris</code>方法,这个方法会随机产生一个形状的方块组,具体代码参见<code>github</code>的<code>Teris.ts</code>.</p>
+</li>
+<li><p>TerisRules<br>这个模块时用来指定方块的相关行为的如是否可以旋转或者移动,移动,旋转,是否可消去一行以及消去一行,<code>canIMove</code>方法用于判断当前方块是否可以移动或者旋转主要时通过方块坐标是否越界即超出我们在<code>PageConfig</code>中所定义的容器大小,同时通过判断当前方块旋转后的坐标组中是否有方块坐标与容器中现存的方块坐标有一样的,来决定是否可以旋转,<code>moveAlongdown</code>方法主要时将方块延一个方向移动到底的,<code>moveDirection</code>方法用于计算当前方块沿某个方向移动一个坐标后的坐标,然后调用<code>movePoint</code>方法实现移动,<code>movePoint</code>方法用于移动方块,首先调用<code>canIMove</code>方法判断是否可以移动,然后通过改变方块组的中心方块坐标让方块移动,前面我们提到了方块组里面的中心坐标是和方块组中每个单元方块挂钩的,改变中心方块坐标就会改变其他方块坐标,单元方块坐标被改变的时候,由于我们是通过访问器去改变的,访问器函数会调用其控制实例的 show 方法将实时属性渲染到容器中.<code>rotate</code>方法首先利用<code>afterrotate</code>方法计算出旋转后的坐标，然后用<code>canIMove</code>判断是否可以旋转,最后调用对用方块组类的<code>rotate</code>方法完成旋转,最后是删除满足一行的方块<code>getLineSquare</code>,<code>deleteLine</code>,<code>deleteSquare</code>方法,当方块触发触底事件后,这里的触底不仅仅是容器底部,包括容器中的其他小方块,首先过滤出有方块的行,然后,依次判断同一行号的方块数目有没有和容器格数宽度相等,容器的横向格子数在<code>PageConfig</code>中已经配置好的,如果相等,则进行消除操作,首先循环调用这些可消除方块的<code>Iview</code>属性上的<code>remove</code>方法将其从容器中消除,然后再从当前存放容器中已有小方块实例的属性<code>exist</code>中将其删去,这个属性在<code>Game</code>类中被定义,是一个<code>Point</code>类型的属性<code>Point</code>类型在<code>types</code>中定义,最后将行号小于当前消去行行号的方块的中心点坐标加一让其整体下移一格,具体代码参见<code>github</code>的<code>TerisRules.ts</code></p>
+</li>
+<li><p>GamePageViewer<br>这个类主要是游戏的主界面的控制类,它存放着游戏所需要的 dom 节点,方法包括<code>showOver</code>,<code>pause</code>,<code>init</code>,<code>showScore</code>,<code>showNext</code>,<code>switch</code>,<code>showover</code>方法当游戏结束的时候,<code>Game</code>类实例会调用这个方法,展示游戏结算信息,<code>pause</code>当玩家按下<code>pause</code>时会触发暂停.展示暂停相关信息,<code>init</code>当<code>Game</code>类实例化后会调用该方法,该方法首先根据我们的配置文件<code>PageConfig</code>设置后游戏界面的大小,然后注册对应的游戏控制键盘事件,<code>showScore</code>用于结算后在对应 dom 节点中插入分数,<code>switch</code>用于将预览区的方块组切换到游戏区,<code>showNext</code>用于控制预览区方块组的展示,具体代码参见<code>github</code>的<code>GamePageViewer.ts</code></p>
+</li>
+<li><p>Game<br>这个类是最上层的类,用于控制游戏的状态,包括分数,难度,当前方块组,下一方块组,暂停,开始,已触底方块等方法有<code>pause</code>,切换游戏状态,清除控制方块下路的定时器,调用<code>GamePageViewer</code>实例中的<code>pause</code>方法,<code>controlLeft</code>,<code>controlright</code>,<code>conftrolDown</code>用于控制方块的移动其中方块组的下移触底后需要调用<code>hitBottom</code>方法进行消除判断,<code>controlrotate</code>用于控制方块的旋转,<code>autoToDrop</code>用于设置一个定时器控制方块组自动下落,<code>switchTeris</code>用于切换到下一个方块组,这个函数里面同时要调用<code>isOver</code>方法判断游戏是否结束,<code>isOver</code>方法首先调用<code>TErisRule</code>中的<code>canIMove</code>方法,如果下一个方块组无法移动,则判定游戏结束,同时再次初始化游戏相关信息.<code>reset</code>方法用于设置新方块组的初始位置,跃出边界则移动,<code>hitBottom</code>方法用于将方块组类中的小方块实例放入到<code>exist</code>中,然后调用<code>deleteSquare</code>方法判定是否可以删除,同时放回删除的行数,调用<code>addScore</code>方法根据删除的行数增加分数,然后调用<code>switchTeris</code>切换到下一个方块组,<code>addScore</code>用于增加分数,<code>speed</code>方法会在分数属性的访问器中被调用,如果分数到达了一定的值,将会根据我们在<code>PageConfig</code>方法中时设置好的参数加快方块自动下落的速度</p>
+</li>
+<li><p>PageConfig<br>这个模块放的是游戏的一些配置数据,<code>SquareSize</code>,每个小方块的大小,<code>panelsize</code>,游戏面板的格子数,<code>nextSize</code>,预览区格子数,<code>speed</code>游戏分数对用的方块组下落周期</p>
+</li>
+<li><p>Types<br>这里定义了项目中所有的接口,枚举类型,和类型</p>
+</li>
+<li><p>util<br>这个模块用于产生一个随机数,这个随机数对用一个类型方块组,在<code>Teris.ts</code>中被调用</p>
+</li>
+<li><p>index<br>入口文件</p>
+</li>
+<li><p>其他<br>webpack 的配置和 tsconfig 的配置都是一些基本配置,就不讲了.</p>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以前习惯了 JS 的泛滥生长,想到哪写到哪,习惯于以过程去思考问题,通常有一些函数写的非常的庞大,虽然有时会刻意的去拆分一些函数,但是总是充满着随意性,没有一个明显的意图,除非某一段代码被重复写了很多遍,才会将其拿出去,真的很糟糕,但是 TS 这种面向对象编程的模式,确实让我耳目一新,虽然我以前接触过 java,甚至觉得这两怎么这么像,但毕竟用处不一样,这种面向对象的模式,将这个游戏自顶向下进行拆分,大类分为行为类和数据类,同时行为类又分为行为命令派发类和行为命令执行类,从整个游戏类到最基础的小方块类,这种拆分思维确实很值得学习,大大降低了代码的耦合度,可拓展性非常好.而且,而且,特别是<code>types.ts</code>这个文件,以前我们定标准一般是使用文档,但是这种属于弱标准,没有强制约束力,比如经典的<code>name</code>写成<code>nema</code>,别说你没写过哈,但是 TS 通过代码的形式去强制定义标准,强制我们去实现.这是很棒的.刚刚接触的时候,我一直在想,这玩意这么绕来绕去,花里胡哨,现在我是越来越喜欢这东西了.有点回不去的感觉了.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/webpack/" rel="tag"># webpack</a>
+              <a href="/tags/TS/" rel="tag"># TS</a>
+              <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B/" rel="tag"># 面向对象编程</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/08/%E8%85%BE%E8%AE%AF%E4%BA%91%E4%BA%91%E5%87%BD%E6%95%B0%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87/" rel="prev" title="'腾讯云云函数上传图片'">
+      <i class="fa fa-chevron-left"></i> '腾讯云云函数上传图片'
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#任务描述"><span class="nav-number">1.</span> <span class="nav-text">任务描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体实现"><span class="nav-number">2.</span> <span class="nav-text">具体实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Johnkun1314" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Johnkun1314" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wellkun@163.com" title="E-Mail → wellkun@163.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/1617031887" title="QQ → 1617031887"><i class="fa fa-fw fa-qq"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://b.wellkun.com/atom.xml" title="RSS → https:&#x2F;&#x2F;b.wellkun.com&#x2F;atom.xml" rel="noopener" target="_blank"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+<a href="http://www.beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备18052753号</a><br/>
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John</span>
+</div>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.6.0
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: false,
+      notify: false,
+      appId: 'E6xSsCXlePB9j25pEYFqzYxS-gzGzoHsz',
+      appKey: 'G12fdqLFsCLGeGVmIK37Ajnw',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: false,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
