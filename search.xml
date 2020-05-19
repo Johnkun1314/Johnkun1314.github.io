@@ -583,8 +583,9 @@
     <url>/2020/05/19/vue%E4%B8%AD%E7%9A%84%E8%99%9A%E6%8B%9Fdom/</url>
     <content><![CDATA[<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>vue 有几个重要的点,前面我们学过了数据双向绑定(<a href="https://b.wellkun.com/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/#more" target="_blank" rel="noopener">传送门</a>,),还有一个重要的点就是虚拟 dom 了.</p>
 <a id="more"></a>
+
 <h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><p>我们这里采用的是使用 js 实现的一个比较简单的虚拟 dom,<a href="https://github.com/Johnkun1314/bindDataAndVDom/tree/master/vDom" target="_blank" rel="noopener">代码在这</a><br>对于 HTML 里面的虚拟 vnode 的结构,不要问为什么是这个样子的,可以大致去参考 vue 的源码下的<code>src/compiler/parser/index.js</code>,源码对于虚拟 dom 的结构分得更细一点,我们这里对于行间属性同意都放到了 data 属性里面,对于 vue 中虚拟 dom 的源码,可以参考 vue 源码中的<code>src/core/vdom/patch.js</code></p>
-<h1 id="函数列表"><a href="#函数列表" class="headerlink" title="函数列表"></a>函数列表</h1><ul>
+<ul>
 <li>nodeType<br>定义节点类型,文本，标签以及组件,组件类型我们这里不讨论</li>
 <li>childType<br>定义子节点类型,分为空,文本和多个</li>
 <li>render()<br>渲染函数,每次挂载节点或者更新节点的执行入口,执行 updata 和 mount</li>
@@ -624,7 +625,7 @@
 </ul>
 </li>
 </ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>vue 中重要的概念了解这两个应该就够了,至于其编译器等其他的概念,等我再去修一遍编译原理,读完 vue 源码后再更(所以就是不可能更得啦),也不要讲什么我就算不知道数据双向绑定以及虚拟dom我也能做项目啊,不了解当然是能做项目得的,但是这就像玩斯诺克是否学好了物理,学好物理的人肯定比没学物理的人进步快,没学物理的人只能通过一次次的尝试和摸索去获得门道,了解其基本底层机制,能帮助我们更好的去写好的代码更好的学习和使用vue,如果你不知道虚拟dom,你只知道在写<code>v-for</code>的时候不写<code>key</code>会报错,但是为什么报错呢,我又没用到过这个key,对吧,只会满足于简单使用进步很慢,或者说永远不会进步,也没有自己的竞争力,最后,扎实的地基才能盖好高楼!</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>vue 中重要的概念了解这两个应该就够了,至于其编译器等其他的概念,等我再去修一遍编译原理,读完 vue 源码后再更(所以就是不可能更得啦),也不要讲什么我就算不知道数据双向绑定以及虚拟 dom 我也能做项目啊,不了解当然是能做项目得的,但是这就像玩斯诺克是否学好了物理,学好物理的人肯定比没学物理的人进步快,没学物理的人只能通过一次次的尝试和摸索去获得门道,了解其基本底层机制,能帮助我们更好的去写好的代码更好的学习和使用 vue,如果你不知道虚拟 dom,你只知道在写<code>v-for</code>的时候不写<code>key</code>会报错,但是为什么报错呢,我又没用到过这个 key,对吧,只会满足于简单使用进步很慢,或者说永远不会进步,也没有自己的竞争力,最后,扎实的地基才能盖好高楼!</p>
 ]]></content>
       <tags>
         <tag>vue</tag>
