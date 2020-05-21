@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="问题描述初学者刚接触 nodejs 的时候应该大部分都是使用 koa 去应对日常开发练习,但是,就有一个问题,如果过个半个月一个月不去整,我就会忘记怎么写,连入口文件都忘记了,思来想去,还是对koa这个东西不了解,停留在看文档写(抄)代码的阶段,所以,参照着koa的源码,动手写了一个简化的koa,源码在这传送门">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简版的koa实现">
+<meta property="og:url" content="http://yoursite.com/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Dear John">
+<meta property="og:description" content="问题描述初学者刚接触 nodejs 的时候应该大部分都是使用 koa 去应对日常开发练习,但是,就有一个问题,如果过个半个月一个月不去整,我就会忘记怎么写,连入口文件都忘记了,思来想去,还是对koa这个东西不了解,停留在看文档写(抄)代码的阶段,所以,参照着koa的源码,动手写了一个简化的koa,源码在这传送门">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-05-21T06:49:20.000Z">
+<meta property="article:modified_time" content="2020-05-21T12:42:41.283Z">
+<meta property="article:author" content="John">
+<meta property="article:tag" content="koa">
+<meta property="article:tag" content="nodejs">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>简版的koa实现 | Dear John</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Dear John</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dear John">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          简版的koa实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-05-21 14:49:20 / Modified: 20:42:41" itemprop="dateCreated datePublished" datetime="2020-05-21T14:49:20+08:00">2020-05-21</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>初学者刚接触 <code>nodejs</code> 的时候应该大部分都是使用 <code>koa</code> 去应对日常开发练习,但是,就有一个问题,如果过个半个月一个月不去整,我就会忘记怎么写,连入口文件都忘记了,思来想去,还是对<code>koa</code>这个东西不了解,停留在看文档写(抄)代码的阶段,所以,参照着<code>koa</code>的源码,动手写了一个简化的<code>koa</code>,源码在这<a href="https://github.com/Johnkun1314/nodeJS/tree/master/vkoa" target="_blank" rel="noopener">传送门</a></p>
+<a id="more"></a>
+
+<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><p>我这里实现了<code>koa</code>基础功能,<code>static</code>静态文件服务,以及<code>router</code>插件</p>
+<ul>
+<li><p>先初始化项目<code>npm init -y</code></p>
+</li>
+<li><p>新建<code>Vkoa</code>文件夹,<code>index.js</code>以及<code>public</code>文件夹</p>
+</li>
+<li><p>index.js 入口文件,和使用<code>koa</code>无异</p>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Vkoa = <span class="built_in">require</span>(<span class="string">'./Vkoa/index'</span>)</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Router = <span class="built_in">require</span>(<span class="string">'./Vkoa/router'</span>)</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">static</span> = <span class="built_in">require</span>(<span class="string">'./Vkoa/static'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = <span class="keyword">new</span> Vkoa()</span><br><span class="line"><span class="keyword">const</span> router = <span class="keyword">new</span> Router()</span><br><span class="line"></span><br><span class="line">app.use(<span class="keyword">static</span>(path.join(__dirname,<span class="string">'public'</span>)))</span><br><span class="line">app.use(router.routes())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.get(<span class="string">'/'</span>, <span class="keyword">async</span> (ctx,next) =&gt; &#123;</span><br><span class="line">    ctx.body = <span class="string">'router get'</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">router.post(<span class="string">'/public'</span>, <span class="keyword">async</span> (ctx) =&gt; &#123;</span><br><span class="line"></span><br><span class="line">    ctx.body = <span class="string">'router post'</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.listen(<span class="number">3000</span>, () =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'listen at 3000'</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Vkoa.js 文件,即 koa 的主体文件<br>这个<code>koa</code>的核心文件,我们平常使用的<code>use</code>,<code>listen</code>,<code>use</code>这个函数将使用<code>app.use()</code>注册的函数保存在<code>fnList</code>中,<code>listen</code>这个函数启动了一个<code>http</code>服务器,同时调用其他函数处理这个请求,<code>compose</code>是聚合函数,用于将我们注册的函数聚合,<code>createContext</code>用于将<code>request</code>和<code>response</code>绑定到<code>ctx</code>上面,同时提供一些常用属性如<code>url</code>,<code>method</code>的快捷读取.<br>这里的<code>compose</code>和<code>createContext</code>这两个方法特别是<code>compose</code>方法应该是比较迷的地方了.</li>
+</ul>
+<hr>
+<p><code>compose</code>函数,这个函数也是我们能实现<code>洋葱模型</code>的关键,<code>洋葱模型</code>可以理解为一系列函数层层嵌套执行,像我们写的:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">app.use(<span class="keyword">async</span>(ctx,next)=&gt;&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">1</span>)</span><br><span class="line">    next()</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">6</span>)</span><br><span class="line">&#125;)</span><br><span class="line">app.use(<span class="keyword">async</span>(ctx,next)=&gt;&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">2</span>)</span><br><span class="line">    next()</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">5</span>)</span><br><span class="line">&#125;)</span><br><span class="line">app.use(<span class="keyword">async</span>(ctx,next)=&gt;&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">3</span>)</span><br><span class="line">    next()</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">4</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的执行结果为:1,2,3,4,5,6<br>从外到内,再从内到外,每个 next 会等待下面的函数执行完后再执行下面的代码,这只是一个简单的例子,但是为什么调用<code>next</code>函数会往下执行呢?这就是<code>compose</code>这个函数的作用了.<br>我们可以看到,每调用一次<code>app.use()</code>,<code>use</code>函数会将传入的函数保存到一个数组中,然后让<code>compose</code>调用,<code>compose</code>返回一个匿名函数,这个匿名函数调用其自生声明的一个函数<code>toNext</code>,<code>toNext</code>函数以传入的下角标去获取对应的函数,即我们前面<code>app.use()</code>传入的函数,函数存在,就返回一个<code>Promise</code>,<code>resolve</code>的结果就是用下角标获取的函数的执行结果,里面的这个函数以<code>ctx</code>和一个函数,这个函数执行下一个<code>toNext</code>并且将下角标加一,这就是为什么我们在执行<code>next</code>后会执行下面的函数的原因,注意这里一定要返回一个<code>Promise</code>,后面会将原因.</p>
+<hr>
+<p><code>createContext</code>函数,这里的这个<code>Object.create()</code>方法我也是头一次将,可以理解为一个继承操作,新建一个对象并且继承子传入的参数,可以看到,我们创建一个<code>ctx</code>对象并且继承自<code>context</code>,<code>context</code>具体见下面,同时在其上新建<code>request</code>以及<code>response</code>属性,同时将真正的<code>request</code>和<code>response</code>绑定到<code>ctx.req</code>以及<code>ctx.res</code>上面.最后返回<code>ctx</code>,源码封装了更多快捷操作在<code>ctx</code>上面.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Vkoa.js</span></span><br><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> context = <span class="built_in">require</span>(<span class="string">'./context'</span>)</span><br><span class="line"><span class="keyword">const</span> request = <span class="built_in">require</span>(<span class="string">'./request'</span>)</span><br><span class="line"><span class="keyword">const</span> response = <span class="built_in">require</span>(<span class="string">'./response'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vkoa</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>() &#123;</span><br><span class="line">        <span class="keyword">this</span>.fnList = []</span><br><span class="line">    &#125;</span><br><span class="line">    use(fn) &#123;</span><br><span class="line">        <span class="keyword">this</span>.fnList.push(fn)</span><br><span class="line">    &#125;</span><br><span class="line">    listen(port, fn) &#123;</span><br><span class="line">        <span class="keyword">const</span> server = http.createServer(<span class="keyword">async</span> (req, res) =&gt; &#123;</span><br><span class="line">            <span class="keyword">const</span> ctx = <span class="keyword">this</span>.createContext(req, res)</span><br><span class="line">            <span class="keyword">const</span> url = ctx.url</span><br><span class="line">            <span class="keyword">const</span> fn = <span class="keyword">this</span>.compose(<span class="keyword">this</span>.fnList)</span><br><span class="line">             fn(ctx)</span><br><span class="line"></span><br><span class="line">            res.end(ctx.body)</span><br><span class="line">        &#125;)</span><br><span class="line">        server.listen(port, fn)</span><br><span class="line">    &#125;</span><br><span class="line">    compose(fnList) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function">(<span class="params">ctx</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> toNext(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">function</span> <span class="title">toNext</span>(<span class="params">i</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">let</span> fn = fnList[i]</span><br><span class="line">                <span class="keyword">if</span> (!fn) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve()</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve(</span><br><span class="line">                    fn(ctx, () =&gt; &#123;</span><br><span class="line">                      <span class="keyword">return</span>  toNext(i + <span class="number">1</span>)</span><br><span class="line">                    &#125;)</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    createContext(req, res) &#123;</span><br><span class="line">        <span class="keyword">const</span> ctx = <span class="built_in">Object</span>.create(context)</span><br><span class="line">        ctx.request = <span class="built_in">Object</span>.create(request)</span><br><span class="line">        ctx.response = <span class="built_in">Object</span>.create(response)</span><br><span class="line">        ctx.req = ctx.request.req = req</span><br><span class="line">        ctx.res = ctx.response.res = res</span><br><span class="line">        <span class="keyword">return</span> ctx</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = Vkoa</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>request.js, response.js 以及 contenxt.js<br>这三个模块主要用于定义访问器实现属性的快捷操作,对访问器不懂得小伙伴,就记得这是一个属性拦截器就好了.</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// request.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    <span class="keyword">get</span> url()&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.req.url</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">get</span> method()&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.req.method.toLowerCase()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//response.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    <span class="keyword">get</span> body()&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._body</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">set</span> body(val)&#123;</span><br><span class="line">        <span class="keyword">this</span>._body = val</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//context.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    <span class="keyword">get</span> body() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.response.bpdy</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">set</span> body(val) &#123;</span><br><span class="line">        <span class="keyword">this</span>.response.bpdy = val</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">get</span> url() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.request.url</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">get</span> method() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.request.method</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>router 的实现<br>看,我们平时执行的<code>app.use(router.routes)</code>就是这么回事,返回了一个函数,我们所声明的<code>router.get()</code>,<code>router.post()</code>都被存到了一个数组里面,每次有新的请求到达时,就会去遍历这张表,找到<code>mehtod</code>和<code>url</code>符合的项,然后执行它.</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="class"><span class="keyword">class</span> <span class="title">Router</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>() &#123;</span><br><span class="line">        <span class="keyword">this</span>.list = []</span><br><span class="line">    &#125;</span><br><span class="line">    routes() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">            <span class="keyword">let</span> url = ctx.url</span><br><span class="line">            <span class="keyword">let</span> method = ctx.method</span><br><span class="line">            <span class="keyword">let</span> fn</span><br><span class="line">            <span class="keyword">this</span>.list.map(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (item.path === url &amp;&amp; item.method === method) &#123;</span><br><span class="line">                    <span class="comment">// find = true</span></span><br><span class="line">                    <span class="built_in">console</span>.log(<span class="string">'find'</span>)</span><br><span class="line">                    fn = item.fn</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            <span class="keyword">if</span>(fn)&#123;</span><br><span class="line">                 <span class="keyword">await</span> fn(ctx,next)</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    regist(path, method, fn) &#123;</span><br><span class="line">        <span class="keyword">this</span>.list.push(&#123;</span><br><span class="line">            path,</span><br><span class="line">            method,</span><br><span class="line">            fn</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">get</span>(path, fn) &#123;</span><br><span class="line">        <span class="keyword">this</span>.regist(path, <span class="string">'get'</span>, fn)</span><br><span class="line">    &#125;</span><br><span class="line">    post(path, fn) &#123;</span><br><span class="line">        <span class="keyword">this</span>.regist(path, <span class="string">'post'</span>, fn)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>static 的实现<br>static 的实现比较简单,根据指定的<code>url</code>和自定义的静态文件路径去访问文件,注意一定到返回一个异步函数,因为文件读取时一个异步操作,你不使用 await,会直接过!</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> <span class="title">static</span>(<span class="params">path</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> &#123;</span><br><span class="line">            url,</span><br><span class="line">            method</span><br><span class="line">        &#125; = ctx</span><br><span class="line">        <span class="keyword">if</span>(url == <span class="string">'/'</span>)</span><br><span class="line">        url = <span class="string">'/index.html'</span></span><br><span class="line">        <span class="keyword">await</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve,reject</span>)=&gt;</span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.log(url)</span><br><span class="line">            fs.readFile(path + url, (err, data) =&gt; &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">'static'</span>)</span><br><span class="line">                <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                    resolve(<span class="number">0</span>)</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    ctx.body = data</span><br><span class="line">                    resolve(<span class="number">1</span>)</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个算是比较简单的版本,但是我也遇到了一些问题,就是前面那个<code>compose</code>函数一定要返回一个<code>Promise</code>的地方,我可能对<code>nodejs</code>的异步操作理解的太烂了,如果不返回一个<code>promise</code>,你在<code>listen</code>这个函数里面执行<code>compose</code>的返回结果的时候,使用<code>await</code>是没用的,那个地方如果不使用<code>await</code>,只要你使用<code>app.use()</code>注入的函数是一个异步函数,里面的任何异步操作,会被直接跳过,在里面使用<code>await</code>无效,如果你想在一个<code>get</code>请求里面读取文件,然后将文件读取结果返回,他会跳过这一步,我就郁闷,我注册的时候不声明异步函数,他也会直接跳过,en,又遇到问题了,等我想明白再更新!我觉得我应该不会忘记koa入口文件怎么写了!<br>还有那个<code>static</code>和<code>router</code>之间不是<code>洋葱模型</code>,即如果你把<code>app.use(staitc())</code>写在<code>app.use(router.routes())</code>前面的时候,不会执行到路由里面去,反之亦然!</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/koa/" rel="tag"># koa</a>
+              <a href="/tags/nodejs/" rel="tag"># nodejs</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/19/vue%E4%B8%AD%E7%9A%84%E8%99%9A%E6%8B%9Fdom/" rel="prev" title="'vue中的虚拟dom'">
+      <i class="fa fa-chevron-left"></i> 'vue中的虚拟dom'
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现过程"><span class="nav-number">2.</span> <span class="nav-text">实现过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">30</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Johnkun1314" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Johnkun1314" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wellkun@163.com" title="E-Mail → wellkun@163.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/1617031887" title="QQ → 1617031887"><i class="fa fa-fw fa-qq"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://b.wellkun.com/atom.xml" title="RSS → https:&#x2F;&#x2F;b.wellkun.com&#x2F;atom.xml" rel="noopener" target="_blank"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+<a href="http://www.beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备18052753号</a><br/>
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John</span>
+</div>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.6.0
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: false,
+      notify: false,
+      appId: 'E6xSsCXlePB9j25pEYFqzYxS-gzGzoHsz',
+      appKey: 'G12fdqLFsCLGeGVmIK37Ajnw',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: false,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

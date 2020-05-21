@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>helloworld</title>
-    <url>/2019/12/30/helloworld/</url>
-    <content><![CDATA[<h3 id="This-is-my-first-day-Hello-The-world-Hello-Everything"><a href="#This-is-my-first-day-Hello-The-world-Hello-Everything" class="headerlink" title="This is my first day! Hello!The world! Hello!Everything!"></a>This is my first day! Hello!The world! Hello!Everything!</h3>]]></content>
-  </entry>
-  <entry>
     <title>TypeScript学习记录1</title>
     <url>/2020/03/04/TypeScript%E5%AD%A6%E4%B9%A0_%E8%B5%B7%E6%AD%A5/</url>
     <content><![CDATA[<h1 id="TypeScript-学习笔记"><a href="#TypeScript-学习笔记" class="headerlink" title="TypeScript 学习笔记"></a>TypeScript 学习笔记</h1><h2 id="记录列表"><a href="#记录列表" class="headerlink" title="记录列表"></a>记录列表</h2><ul>
@@ -70,6 +65,11 @@
       </tags>
   </entry>
   <entry>
+    <title>helloworld</title>
+    <url>/2019/12/30/helloworld/</url>
+    <content><![CDATA[<h3 id="This-is-my-first-day-Hello-The-world-Hello-Everything"><a href="#This-is-my-first-day-Hello-The-world-Hello-Everything" class="headerlink" title="This is my first day! Hello!The world! Hello!Everything!"></a>This is my first day! Hello!The world! Hello!Everything!</h3>]]></content>
+  </entry>
+  <entry>
     <title>nuxt项目部署的心得</title>
     <url>/2020/02/25/nuxt%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2%E7%9A%84%E5%9D%91/</url>
     <content><![CDATA[<h1 id="nuxt项目部署的心得"><a href="#nuxt项目部署的心得" class="headerlink" title="nuxt项目部署的心得"></a>nuxt项目部署的心得</h1><hr>
@@ -105,6 +105,121 @@
         <tag>nuxt</tag>
         <tag>项目部署</tag>
         <tag>nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>&#39;Vuex简单实现&#39;</title>
+    <url>/2020/04/21/Vuex%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>插件通常用来为<code>Vue</code>添加全局功能,插件的添加有以下几种</p>
+<ol>
+<li><p>添加全局方法或者属性。如：vue-custom-element</p>
+</li>
+<li><p>添加全局资源：指令/过滤器/过渡等。如 vue-touch</p>
+</li>
+<li><p>通过全局混入来添加一些组件选项。如 vue-router</p>
+</li>
+<li><p>添加 Vue 实例方法，通过把它们添加到 Vue.prototype 上实现。</p>
+</li>
+<li><p>一个库，提供自己的 API，同时提供上面提到的一个或多个功能。如 vue-router</p>
+</li>
+</ol>
+<p>我们今天实现的就是实现一个简单的<code>Vuex</code>插件,这款插件相信大家在日常<code>vue</code>开发中使用的比较多了</p>
+<a id="more"></a>
+
+<h1 id="具体实现流程"><a href="#具体实现流程" class="headerlink" title="具体实现流程"></a>具体实现流程</h1><ul>
+<li>核心文件<code>store.js</code></li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> Vue</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">install</span>(<span class="params">_Vue</span>)</span>&#123;</span><br><span class="line">    Vue = _Vue</span><br><span class="line">    Vue.mixin(&#123;</span><br><span class="line">        beforeCreate() &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="keyword">this</span>)</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.$options.store)&#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">'1111'</span>)</span><br><span class="line">                Vue.prototype.$store = <span class="keyword">this</span>.$options.store</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Store</span></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>( options = &#123;&#125; )&#123;</span><br><span class="line">        <span class="keyword">this</span>.state = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">            data: options.state || &#123;&#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="keyword">this</span>.mutations = options.mutations || &#123;&#125;</span><br><span class="line">        <span class="keyword">this</span>.actions = options.actions || &#123;&#125;</span><br><span class="line">        options.getters&amp;&amp;<span class="keyword">this</span>.handleGetters(options.getters)</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    commit = <span class="function">(<span class="params">type, data</span>)=&gt;</span>&#123;</span><br><span class="line">        <span class="keyword">const</span> fn = <span class="keyword">this</span>.mutations[type]</span><br><span class="line">        fn(<span class="keyword">this</span>.state, data)</span><br><span class="line">    &#125;</span><br><span class="line">    dispatch = <span class="function">(<span class="params">type, data</span>)=&gt;</span>&#123;</span><br><span class="line">        <span class="keyword">const</span> obj = &#123;</span><br><span class="line">            commit:<span class="keyword">this</span>.commit,</span><br><span class="line">            state:<span class="keyword">this</span>.state</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">const</span> fn = <span class="keyword">this</span>.actions[type]</span><br><span class="line">        fn(obj,data)</span><br><span class="line">    &#125;</span><br><span class="line">    handleGetters(getters)&#123;</span><br><span class="line">        <span class="keyword">this</span>.getters = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">let</span> key <span class="keyword">in</span> getters)&#123;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>.getters, key,&#123;</span><br><span class="line">                <span class="keyword">get</span>:()=&gt;&#123;</span><br><span class="line">                    <span class="keyword">return</span> getters[key](<span class="keyword">this</span>.state)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;Store, install&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是<code>vuex</code>实现的具体代码,根据官方文档,插件安装的时候需要提供<code>install</code>方法,这个<code>install</code>方法主要就是使用混入在每个<code>Vue</code>实例的<code>beforeCreate</code>生命周期函数里面进行判断,如果<code>Vue</code>实例上面已经存在全局<code>store</code>属性,这个<code>store</code>的声明实在<code>main.js</code>里面</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">'vue'</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App.vue'</span></span><br><span class="line"><span class="keyword">import</span> store <span class="keyword">from</span>  <span class="string">'./store/index'</span></span><br><span class="line"></span><br><span class="line">Vue.config.productionTip = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  render: <span class="function"><span class="params">h</span> =&gt;</span> h(App),</span><br><span class="line">  store</span><br><span class="line">&#125;).$mount(<span class="string">'#app'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>即如果<code>Vuex</code>插件已经安装,则将<code>store</code>这个方法挂载到<code>Vue</code>原型上面,下面的<code>Store</code>类是<code>vuex</code>的核心了,可以看到,<code>vuex</code>之所以能实现响应式,是其将 state 注入了一个心得<code>Vue</code>实例中,正是利用了<code>Vue</code>的数据响应式,其实这种思想有点像以前使用的<code>全局总线</code>,即在现有的<code>Vue</code>原型上面挂载一个新的<code>Vue</code>实例,然后再这个新的<code>vue</code>实例上面去实现相关方法.<br>对于<code>mutations</code>和<code>actions</code>,我们通常是使用<code>commit</code>和<code>dispatch</code>去触发的,所以我们在<code>Store</code>类里面实现了<code>commit</code>和<code>dispatch</code>,然后由着两个方法根据传入的参数去找到对应得<code>mutations</code>和<code>actions</code>里面得方法去执行.<br>最后就是<code>getters</code>,<code>getters</code>和其他两个实现有所不同,笔者在这里想了多种得方法去实现,但是都无法实现动态取值或者是能够被更改,最后想到了取值和设置值的本质,即<code>Object.defineProperty</code>,我们只需要使用这个方法,既能实现动态取值以及禁止更改,具体可以看<code>handleGetters</code>,我们在<code>Object.defineProperty</code>里面只设置取值操作,不设置<code>set</code>函数即可.</p>
+<p>最后在<code>store/index.js</code>里面执行<code>Vue.use()</code>安装插件即可!</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><code>vuex</code>的实现是很精妙的,笔者这里只是一个简单的例子,<code>vuex</code>的设计思想对于我们日常开发设计插件或者全局方法是很有帮助的,有种<strong>借力打力</strong>的味道.</p>
+]]></content>
+      <tags>
+        <tag>vue</tag>
+        <tag>vuex</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>创新实践三期末报告</title>
+    <url>/2020/01/16/%E5%88%9B%E6%96%B0%E5%AE%9E%E8%B7%B5%E4%B8%89%E6%9C%9F%E6%9C%AB%E6%8A%A5%E5%91%8A/</url>
+    <content><![CDATA[<h1 id="星星优品"><a href="#星星优品" class="headerlink" title="星星优品"></a>星星优品</h1><h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><ul>
+<li>前端：把星星优品的原生App重构为uni-app，并发布为微信小程序。</li>
+<li>后台：重构原有的星星优品的后台，降低后台的维护成本。<a id="more"></a>
+<h2 id="开发环境"><a href="#开发环境" class="headerlink" title="开发环境"></a>开发环境</h2></li>
+<li>IDE：HBuilder X + 微信开发者工具<ul>
+<li>HBuilder X是uni-app官方的IDE，自带的语义提示和格式化代码功能比较强大</li>
+<li>微信开发者工具用来测试微信小程序端的App</li>
+</ul>
+</li>
+<li>运行库：<ul>
+<li>Uni-ui ： UI组件库</li>
+<li>Vant-weapp : UI组件库</li>
+<li>Kitsu ：JSON API框架</li>
+</ul>
+</li>
+</ul>
+<h2 id="项目设计开发过程"><a href="#项目设计开发过程" class="headerlink" title="项目设计开发过程"></a>项目设计开发过程</h2><p>由于本学期我们实际上来说只做了前端，这里只涉及到前端。</p>
+<h3 id="界面设计"><a href="#界面设计" class="headerlink" title="界面设计"></a>界面设计</h3><p>在用户界面的设计上，我们参考了星星优品原来的App界面。</p>
+<h3 id="开发过程"><a href="#开发过程" class="headerlink" title="开发过程"></a>开发过程</h3><p>由于这个小程序的tabbar上有四个选项，为了保证每个tabbar下面的页面都保持一定的格式和一致性，我们团队里负责前端的同学之间的分工是按照tabbar来分工的。<br><a href="https://www.processon.com/view/link/5df8a17ce4b010171a498f04" target="_blank" rel="noopener">这是一个框架图 on ProcessOn</a><br><img src="https://q.2wwg.cn/15765770296033.jpg" alt=""><br>“首页”和“我”的里面功能共用的比较多，比如说开发票，看订单、查账户余额和流水、以及工单的生成和查看，这一部分基本上是王健和王坤同学一起做的，中间的“商品”和“购物车”是由徐哲锦和我一起编写的。<br>在前期开发阶段，我们开发的时间单位是周，每周周末由组长确定好这周的任务，然后按照分工去进行，有问题的时候就及时反馈，再到周末的时候我们汇总一下，合并一下代码，再确定下周需要做什么。</p>
+<h2 id="关键技术和个人心得"><a href="#关键技术和个人心得" class="headerlink" title="关键技术和个人心得"></a>关键技术和个人心得</h2><h4 id="负责方向"><a href="#负责方向" class="headerlink" title="负责方向"></a>负责方向</h4><ul>
+<li>项目 <strong>我的</strong> 页面和 <strong>首页</strong> 相关设计</li>
+</ul>
+<ul>
+<li>由于主要是前端部分，我主要讲述三个以后开发中大概率会碰见的三个问题<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4></li>
+</ul>
+<ol>
+<li>不同宽高比的手机如何计算scroll-view的高度来铺满剩下的空间<br> <img src="https://q.2wwg.cn/15771956345476.jpg" alt="例图"><ul>
+<li>解决方案<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"> 		scrollHeight()&#123;</span><br><span class="line"><span class="keyword">let</span> scW ;</span><br><span class="line"><span class="keyword">let</span> scH ; </span><br><span class="line"><span class="keyword">let</span> rate;</span><br><span class="line"><span class="keyword">let</span> height;</span><br><span class="line">uni.getSystemInfo(&#123;</span><br><span class="line">    success: <span class="function"><span class="keyword">function</span> (<span class="params">res</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">		rate = <span class="number">750</span>/res.windowWidth;</span><br><span class="line">		height = rate*res.windowHeight<span class="number">-88</span><span class="number">-89</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">	</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">return</span> height+<span class="string">'rpx'</span>;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>textarea穿透模态层<br> <img src="https://q.2wwg.cn/15771956527308.jpg" alt="textarea"><ul>
+<li>解决方案<ul>
+<li>在弹出模态层后，隐藏原 <strong>textarea</strong> ，使用一个先设计好的模板代替，更换模板内的内容和 <strong>textarea</strong> 一致即可</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>聊天界面自动滑到底部<br> <img src="https://q.2wwg.cn/15771956744299.jpg" alt="chatwin"><ul>
+<li>解决方案<ul>
+<li>将这个 <strong>scrollview</strong> 的属性 <strong>scroll-top</strong> 设置为一个大于 <strong>scrollview</strong> 总高度即可</li>
+<li>问题<br>如果在用户查看历史消息的时候，同时有消息到达，会自动下滚！</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="总结（How-To-Be-An-Excellent-Coder-）"><a href="#总结（How-To-Be-An-Excellent-Coder-）" class="headerlink" title="总结（How To Be An Excellent Coder?）"></a>总结（How To Be An Excellent Coder?）</h4><ol>
+<li>不够了解开发工具，对工具使用不透彻<ul>
+<li>开发的最后才知道 <strong>uni-app</strong> 集成了 <strong>vuex</strong><ul>
+<li>vuex了解vue的人都知道这个，但是我们的项目并没有用到这个，这个可以给给我们的项目带来很多好处，比如，我们可以将所有的网络请求放到vuex里面去，然后就不用将请求头挂载到全局上面去了，可以避免去污染原型，同时，如果部分页面需要在vue原型未加载之前就调用请求头，挂载在原型上面是肯定不行的，而在vuex中导入请求头就不会存在这个问题，还有一点就是，他的数据存储，现在如果将数据传给子页面，那么，这个子页面的数据在传过去的那一刻就定好了，而如果使用vuex，可以仅仅传入去一个键值，然后从vuex中getter数据，这样如果数据更新了，页面中的数据会跟着更新的。 </li>
+</ul>
+</li>
+<li>开发的最后才知道 <strong>uni-app</strong> 可以配置 <strong>vue.config.js</strong> 文件<ul>
+<li>这个用过vue 的人应该也知道，最常用的就是在里面配置跨域请求，但是其实还有一个重要的作用，就是可以在里面配置虚拟服务器接口，就像后台的接口一样，好处是显而易见的，首先这个项目由于后台还未开发出来，导致了需要在页面中填入大量的假数据，这样一来，后台开发完成之后，我还需要进行二次开发，需要进行大量的增删改查，增加了很多的工作量，但是如果一开始就使用这个假接口，那么我可以直接以网络请求的格式获取数据，这样一来，当后台制作完后，只需要进行小部分的修改即可。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>没有组件思维<ul>
+<li>整个负责的部分，到最后才封装了一个模态层对话组件，造成了大量的代码冗余，组件思维是非常重要的，但是我对组件的概念似乎出现了一些错误的地方，组件并不仅仅是一个大的功能块，组件甚至小到一个button、一个输入框，如果只是以大型模块去定义组件，那么最后会发现，可能整个项目下来，最坏的情况就是似乎没有一个组件会被用到两次，最后就是一个组件都没有，这其实是非常的不对的，封装组件从一个button开始，这能提高页面样式的统一性，还能为后期的工作去做铺垫，这些封装的组件，时间长了，你也会拥有自己的组件库。</li>
+</ul>
+</li>
+<li><strong>uni-app</strong> 的一点不好<ul>
+<li>没有像原生 <strong>vue</strong> 一样内置路由钩子函数<ul>
+<li>这一点可能是我个人的一些偏见，毕竟uniapp和原生的vue还是有些区别的，vue侧重于web网页，而uniapp主要是移动端如小程序、app等，这两者还是有些区别的，（个人的拙见：可能正是由于适配的范围问题没有实现路由守卫函数，这里拿微信小程序来说，首先，微信小程序没有类似路由拦截的功能，其次，他更没有提供路由拦截类似的接口，所以直接以组件形式注册一个路由拦截器的方案直接被pass掉，而如果想在微信小程序里面实现路由拦截，你只能跳转到对应的页面之后，在其钩子函数里面进行路由判断，而原生的路由拦截是在发出路由请求之前就进行了路由的判断，这区别显然很大，所以，大概是因为一些适配端的问题，导致了uniapp无法无实现路由拦截。）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>创新实践</tag>
+        <tag>uniapp</tag>
       </tags>
   </entry>
   <entry>
@@ -227,358 +342,6 @@
       </tags>
   </entry>
   <entry>
-    <title>weekly_1</title>
-    <url>/2020/02/22/weekly_1/</url>
-    <content><![CDATA[<h2 id="第一周周报"><a href="#第一周周报" class="headerlink" title="第一周周报"></a>第一周周报</h2><hr>
-<ul>
-<li>桌面互联网与移动互联网的区别与优劣<ul>
-<li>它们都是互联网网站，但是，两者的设计理念上却存在着很大的差异，而这，主要是由于屏幕的大小和设备所具有的接口开放所引起的，拿淘宝网来说，移动设备的优点在于可以随时随地的购物，桌面网站则不行，由于移动端通常具有通话功能，所以可以直接在站点里面直接发起拨打的请求，pc端则不行，由于屏幕大小的差异，两者所展现的内容篇幅有很大的差异，PC端由于屏幕大，主界面课展示的内容更多，所以其重点在于能让用户一眼就能够看到有用的信息，比如淘宝网提供的常见快捷生活服务入口就放在右下角，这是大部分人最容易最容易注意到的地方，而移动端则不一样，移动端注重在有限的首屏空间内展示尽可能多的有用信息如 淘宝网首页，都是一些大类入口，不像PC端能分得那么的细致。同时由于移动端各种大小和宽高比需要去做各种响应式布局，传统的PC端设计理念已经不能用于移动端，如淘宝网的首页的导航栏，用在移动端是肯定不行的，移动端直接在底部制作一个导航连去替代顶部导航栏，这也更加的便于用户的操作！同时移动端和pc端的渲染能力也差很多，我自己制作的CSS3动画在移动端几乎是不能渲染的！<a id="more"></a></li>
-</ul>
-</li>
-<li>H5站点与微信公众号的区别与优劣<ul>
-<li>H5站点其本质上面还是一个web站点，可以运行在任何的符合H5标准的容器内，而微信公众号则只能运行在微信里面，如我所使用的 ==阿里云域名与商标== 这个微信公众号，他能给我推送各种相关消息，但是如果点击某条消息，则会打开一个H5应用，如果点击 ==域名注册== ，则会打开一个对应的H5站点，这个站点打开的速度非常的快，这个公众号的功能主要是给我传递各种阿里云域名商标相关的活动和消息，用于日常推广，而H5则不一样，相比于以前，H5可以完成以前无法完成的一些功能，<strong>酷狗</strong>在线音乐播放器，这在以前是无法完成的，在网络条件允许的前提下，他的使用体验几乎和原生的应用相当，可以播放各种音频，MV，甚至可以本地缓存。</li>
-</ul>
-</li>
-<li>移动原生App与微信公众号、H5站点的区别与优劣<ul>
-<li>由于市面上各种品牌商对于安卓的个性化优化与适配，因此原生App的开发成本是比较高的，而且在提交的时候，需要提交到各个应用市场里面去审核，发布的过程是非常繁琐的，而微信公众号则只需要提交给微信审核，H5站点甚至只需要域名进行备案即可使用，但是原生App有着无可比拟的运行流畅度，这里点名表扬<strong>支付宝</strong>，他的启动速度真的是快。但是App需要下载安装，会占用大量的内存空间，如我经常使用的<strong>王者荣耀</strong>，已经占用了接近6个G了，而H5和微信公众号则不会，都是在线使用，原生App还有很多烦人的地方，比如<strong>腾讯QQ</strong>，他的个人主页部分经常会出现红点，表示有新的功能或者活动，但是我根本就不想去点击，但是由于强迫症，我又不得不去点击，这就很烦人了。</li>
-</ul>
-</li>
-<li>小程序与原生App、微信公众号、H5站点的区别与优劣<ul>
-<li>小程序是近几年出现的，其主要的优点就是即点即用，用完就走，完全不会占用本地的内存空间，而且其使用体验是接近于原生App的，但是首次加载的时候会比较的就，这就优点难受了对于强迫症患者而言，但是随着5G到来，我估计以后也会是秒开了。像我手机里加入收藏的小程序<strong>腾讯视频</strong>，在使用H5观看视频的时候，基本上都是==下载客户端观看完整版==，而且，最终要的就是，他不会出现莫名其妙的红点让我去点，每次点开都是一些垃圾信息推广，小程序的开发成本较低，只需要开发一套代码，即可所有设备都适用。</li>
-</ul>
-</li>
-<li>微信小程序与微信公众号、微信服务号的区别与优劣<ul>
-<li>这三者最主要的区别在于定位不一样，微信小程序重功能，微信公众号重消息推广，而微信服务号重服务，如前面提到的<strong>腾讯视频</strong>，主要是提供各种视频播发，而公众号则是推广消息，如<strong>浙江青春</strong>、<strong>杭州发布</strong>，我寒假期间对于浙江的具体疫情了解都是通过这两个公众号的，而服务号，如<strong>王卡助手</strong>，曾经风靡一时的腾讯王卡，就是通过这个服务号进行申请和开通激活的，当然，服务号还提供了公众号所具有的功能，是更加全面的公众号。</li>
-</ul>
-</li>
-<li>微信小程序与其他小程序的区别与优劣<ul>
-<li>他们其实没有什么主要的区别，非要说优劣，那就是各自有<strong>本土作战</strong>的优势，如我使用<strong>腾讯视频</strong>我肯定会打开微信小程序，当然，支付宝小程序也不会有这个，如我使用<strong>饿了么</strong>，我肯定会打开支付宝，为什么呢，因为<strong>饿了么</strong>是支付宝旗下的，在登陆的时候，几乎是一点击登录一键授权即可，而不需要像微信小程序那样，首先授权微信账户，然后又需要授权手机号，然后获取验证码，输入验证码，再登陆，这就非常的繁琐，所以说各种有各自的流量群体，但是微信小程序相对来说是开放式的，会提供各种功能样式的小程序，而支付宝小程序注服务，主要是各种提供生活服务的小程序，两者的设计理念和战略重心有所不同。</li>
-</ul>
-</li>
-</ul>
-<hr>
-<ul>
-<li>什么是小程序？<ul>
-<li>小程序是一种体积小、即点即用、用完就走，且使用体验接近原生App的应用</li>
-</ul>
-</li>
-<li>为什么需要使用小程序<ul>
-<li>小程序“用完即走”，各个小程序相互关联，使用十分方便。</li>
-</ul>
-</li>
-<li>小程序的应用场景是什么<ul>
-<li>公众号关联、电商、实体服务、工具类</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <tags>
-        <tag>创新实践</tag>
-        <tag>周报</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>&#39;Vuex简单实现&#39;</title>
-    <url>/2020/04/21/Vuex%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>插件通常用来为<code>Vue</code>添加全局功能,插件的添加有以下几种</p>
-<ol>
-<li><p>添加全局方法或者属性。如：vue-custom-element</p>
-</li>
-<li><p>添加全局资源：指令/过滤器/过渡等。如 vue-touch</p>
-</li>
-<li><p>通过全局混入来添加一些组件选项。如 vue-router</p>
-</li>
-<li><p>添加 Vue 实例方法，通过把它们添加到 Vue.prototype 上实现。</p>
-</li>
-<li><p>一个库，提供自己的 API，同时提供上面提到的一个或多个功能。如 vue-router</p>
-</li>
-</ol>
-<p>我们今天实现的就是实现一个简单的<code>Vuex</code>插件,这款插件相信大家在日常<code>vue</code>开发中使用的比较多了</p>
-<a id="more"></a>
-
-<h1 id="具体实现流程"><a href="#具体实现流程" class="headerlink" title="具体实现流程"></a>具体实现流程</h1><ul>
-<li>核心文件<code>store.js</code></li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> Vue</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">install</span>(<span class="params">_Vue</span>)</span>&#123;</span><br><span class="line">    Vue = _Vue</span><br><span class="line">    Vue.mixin(&#123;</span><br><span class="line">        beforeCreate() &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="keyword">this</span>)</span><br><span class="line">            <span class="keyword">if</span>(<span class="keyword">this</span>.$options.store)&#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">'1111'</span>)</span><br><span class="line">                Vue.prototype.$store = <span class="keyword">this</span>.$options.store</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Store</span></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>( options = &#123;&#125; )&#123;</span><br><span class="line">        <span class="keyword">this</span>.state = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">            data: options.state || &#123;&#125;</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="keyword">this</span>.mutations = options.mutations || &#123;&#125;</span><br><span class="line">        <span class="keyword">this</span>.actions = options.actions || &#123;&#125;</span><br><span class="line">        options.getters&amp;&amp;<span class="keyword">this</span>.handleGetters(options.getters)</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    commit = <span class="function">(<span class="params">type, data</span>)=&gt;</span>&#123;</span><br><span class="line">        <span class="keyword">const</span> fn = <span class="keyword">this</span>.mutations[type]</span><br><span class="line">        fn(<span class="keyword">this</span>.state, data)</span><br><span class="line">    &#125;</span><br><span class="line">    dispatch = <span class="function">(<span class="params">type, data</span>)=&gt;</span>&#123;</span><br><span class="line">        <span class="keyword">const</span> obj = &#123;</span><br><span class="line">            commit:<span class="keyword">this</span>.commit,</span><br><span class="line">            state:<span class="keyword">this</span>.state</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">const</span> fn = <span class="keyword">this</span>.actions[type]</span><br><span class="line">        fn(obj,data)</span><br><span class="line">    &#125;</span><br><span class="line">    handleGetters(getters)&#123;</span><br><span class="line">        <span class="keyword">this</span>.getters = &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">let</span> key <span class="keyword">in</span> getters)&#123;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>.getters, key,&#123;</span><br><span class="line">                <span class="keyword">get</span>:()=&gt;&#123;</span><br><span class="line">                    <span class="keyword">return</span> getters[key](<span class="keyword">this</span>.state)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;Store, install&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这是<code>vuex</code>实现的具体代码,根据官方文档,插件安装的时候需要提供<code>install</code>方法,这个<code>install</code>方法主要就是使用混入在每个<code>Vue</code>实例的<code>beforeCreate</code>生命周期函数里面进行判断,如果<code>Vue</code>实例上面已经存在全局<code>store</code>属性,这个<code>store</code>的声明实在<code>main.js</code>里面</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">'vue'</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App.vue'</span></span><br><span class="line"><span class="keyword">import</span> store <span class="keyword">from</span>  <span class="string">'./store/index'</span></span><br><span class="line"></span><br><span class="line">Vue.config.productionTip = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  render: <span class="function"><span class="params">h</span> =&gt;</span> h(App),</span><br><span class="line">  store</span><br><span class="line">&#125;).$mount(<span class="string">'#app'</span>)</span><br></pre></td></tr></table></figure>
-
-<p>即如果<code>Vuex</code>插件已经安装,则将<code>store</code>这个方法挂载到<code>Vue</code>原型上面,下面的<code>Store</code>类是<code>vuex</code>的核心了,可以看到,<code>vuex</code>之所以能实现响应式,是其将 state 注入了一个心得<code>Vue</code>实例中,正是利用了<code>Vue</code>的数据响应式,其实这种思想有点像以前使用的<code>全局总线</code>,即在现有的<code>Vue</code>原型上面挂载一个新的<code>Vue</code>实例,然后再这个新的<code>vue</code>实例上面去实现相关方法.<br>对于<code>mutations</code>和<code>actions</code>,我们通常是使用<code>commit</code>和<code>dispatch</code>去触发的,所以我们在<code>Store</code>类里面实现了<code>commit</code>和<code>dispatch</code>,然后由着两个方法根据传入的参数去找到对应得<code>mutations</code>和<code>actions</code>里面得方法去执行.<br>最后就是<code>getters</code>,<code>getters</code>和其他两个实现有所不同,笔者在这里想了多种得方法去实现,但是都无法实现动态取值或者是能够被更改,最后想到了取值和设置值的本质,即<code>Object.defineProperty</code>,我们只需要使用这个方法,既能实现动态取值以及禁止更改,具体可以看<code>handleGetters</code>,我们在<code>Object.defineProperty</code>里面只设置取值操作,不设置<code>set</code>函数即可.</p>
-<p>最后在<code>store/index.js</code>里面执行<code>Vue.use()</code>安装插件即可!</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><code>vuex</code>的实现是很精妙的,笔者这里只是一个简单的例子,<code>vuex</code>的设计思想对于我们日常开发设计插件或者全局方法是很有帮助的,有种<strong>借力打力</strong>的味道.</p>
-]]></content>
-      <tags>
-        <tag>vue</tag>
-        <tag>vuex</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>vue双向绑定原理及实现</title>
-    <url>/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<h1 id="vue-数据双向绑定的原理以及实现"><a href="#vue-数据双向绑定的原理以及实现" class="headerlink" title="vue 数据双向绑定的原理以及实现"></a>vue 数据双向绑定的原理以及实现</h1><p><strong>vue</strong>数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看<strong>vue</strong>的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是<strong>vue</strong>最基础的双向数据绑定,<a href="https://github.com/Johnkun1314/bindDataAndVDom/tree/master/bindData" target="_blank" rel="noopener">源码传送门</a></p>
-<a id="more"></a>
-
-<h2 id="基本原理图"><a href="#基本原理图" class="headerlink" title="基本原理图"></a>基本原理图</h2><p><img src="http://wellkun.com:8982/images/1586428461024-89763.png" alt="原理图"></p>
-<p>这是我对于双向绑定的初步认识,大概就是这么个过程</p>
-<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>先给出一个基本的<strong>HTML</strong>结构</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h1</span> <span class="attr">v-bind</span>=<span class="string">"test"</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">v-model</span>=<span class="string">"test"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">v-click</span>=<span class="string">"increase"</span>&gt;</span>增加<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>然后再新建一个<strong>Vue</strong>对象</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> app = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">        el:<span class="string">"#app"</span>,</span><br><span class="line">        data:&#123;</span><br><span class="line">            test:<span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        methods:&#123;</span><br><span class="line">            increase: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="keyword">this</span>.test = <span class="keyword">this</span>.test + <span class="number">1</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
-
-<p>我们在另一个<code>js</code>文件里面新建一个<code>Vue</code>类</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vue</span></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(opt)&#123;</span><br><span class="line">        <span class="keyword">this</span>._init(opt)</span><br><span class="line">    &#125;</span><br><span class="line">    _init()&#123;</span><br><span class="line">        <span class="keyword">this</span>.$opt = opt</span><br><span class="line">        <span class="keyword">this</span>.$methods = opt.methods</span><br><span class="line">        <span class="keyword">this</span>.$el = <span class="built_in">document</span>.querySelector(opt.el)</span><br><span class="line">        <span class="keyword">this</span>.$data = opt.data</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>._binding = &#123;&#125; <span class="comment">//这个是依赖搜集容器,后面会讲</span></span><br><span class="line">        <span class="keyword">this</span>._observer(<span class="keyword">this</span>.$data)</span><br><span class="line">        <span class="keyword">this</span>._complie(<span class="keyword">this</span>.$el)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在实现<code>_observer</code>函数和<code>complie</code>函数之前我们要先了解一个 api<code>Object.defineProperty</code>,这个 api 是实现数据双向绑定的关键所在</p>
-<blockquote>
-<p>Object.defineProperty(obj,key,chara)<br>第一个参数是传入的对象<br>第二个参数是对象的属性名<br>第三个参数是这个属性的特征值,如下:<br>configurable //是否可删除<br>emunerable //是否可枚举<br>writable //是否可写<br>set 和 get 函数</p>
-</blockquote>
-<p>接下来我们要实现<code>_observer</code>函数和<code>complie</code>函数去实现数据的绑定和依赖搜集,</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">_observer(obj) &#123;</span><br><span class="line">      <span class="keyword">let</span> value</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">          <span class="keyword">if</span> (obj.hasOwnProperty(key)) &#123;</span><br><span class="line">              value = obj[key]</span><br><span class="line">              <span class="keyword">if</span> (<span class="keyword">typeof</span> value == <span class="string">'object'</span>) &#123;</span><br><span class="line">                  <span class="keyword">this</span>._observer(value)</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">this</span>._binding[key] = &#123;</span><br><span class="line">                  _directives: []</span><br><span class="line">              &#125;</span><br><span class="line"></span><br><span class="line">              <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>.$data, key, &#123;</span><br><span class="line">                  configurable: <span class="literal">true</span>,</span><br><span class="line">                  enumerable: <span class="literal">true</span>,</span><br><span class="line">                  <span class="keyword">get</span>: function () &#123;</span><br><span class="line">                      <span class="keyword">return</span> value</span><br><span class="line">                  &#125;,</span><br><span class="line">                  <span class="keyword">set</span>: (newVal)=&gt; &#123;</span><br><span class="line">                      <span class="keyword">if</span> (value !== newVal) &#123;</span><br><span class="line">                          value = newVal</span><br><span class="line">                          <span class="keyword">this</span>._binding[key]._directives.map(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">                              item.update()</span><br><span class="line">                          &#125;)</span><br><span class="line">                      &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;)</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>这个函数主要是用来解析<code>data</code>以及驱动数据更细,这个函数里面使用的<code>_binding</code>就是依赖搜集的容器,可以看到<code>data</code>的每个属性都在<code>_binding</code>里面绑定过了,同时在某个属性值更改的时候,即触发了<code>set</code>函数,首先就跟新 <code>data</code>对应的值,然后遍历对应的依赖数组,即所有使用过这个属性的地方都会执行<code>updata</code>函数,通知其更新,这个<code>updata</code>函数是<code>Watcher</code>原型上面的一个方法,这个数组里面放的就是一个个<code>Watcher</code>对应的实例对象</p>
-<p><code>Watcher</code>类是在依赖搜集的时候,如果 dom 节点使用了<code>data</code>,则会将这个 dom 节点对应的信息使用<code>Watcher</code>类声明并存储在<code>_binding</code>对用的数组里,具体参数的意义请看<code>_complie</code>函数,<code>Watcher</code>类的实现如下如下:</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Watcher</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(name,el,vm,exp,attr) &#123;</span><br><span class="line">        <span class="keyword">this</span>.exp = exp</span><br><span class="line">        <span class="keyword">this</span>.el = el</span><br><span class="line">        <span class="keyword">this</span>.name = name</span><br><span class="line">        <span class="keyword">this</span>.attr = attr</span><br><span class="line">        <span class="keyword">this</span>.vm =vm</span><br><span class="line">        <span class="keyword">this</span>.update()</span><br><span class="line">    &#125;</span><br><span class="line">    update() &#123;</span><br><span class="line">        <span class="keyword">this</span>.el[<span class="keyword">this</span>.attr] = <span class="keyword">this</span>.vm.$data[<span class="keyword">this</span>.exp]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>_complie</code>函数的实现如下:</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">_complie(root) &#123;</span><br><span class="line">        <span class="keyword">let</span> nodes = root.children</span><br><span class="line">        <span class="keyword">let</span> len = nodes.length</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> index = <span class="number">0</span>; index &lt; len; index++) &#123;</span><br><span class="line">            <span class="keyword">let</span> node = nodes[index]</span><br><span class="line">            <span class="keyword">if</span> (node.children.length) &#123;</span><br><span class="line">                <span class="keyword">this</span>._complie(node)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-bind'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-bind'</span>)</span><br><span class="line">                <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'text'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'innerHTML'</span>))</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-click'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-click'</span>)</span><br><span class="line">                node.onclick = <span class="function">(<span class="params">(</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span>  <span class="keyword">this</span>.$methods[attr].bind(<span class="keyword">this</span>.$data)</span><br><span class="line"></span><br><span class="line">                &#125;)()</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-model'</span>) &amp;&amp; (node.tagName == <span class="string">'INPUT'</span> || node.tagName == <span class="string">'TEXTAREA'</span>)) &#123;</span><br><span class="line">                node.addEventListener(<span class="string">'input'</span>, (<span class="function">(<span class="params">key</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-model'</span>)</span><br><span class="line">                    <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'input'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'value'</span>))</span><br><span class="line">                    <span class="keyword">return</span> <span class="function"><span class="params">()</span>=&gt;</span>&#123;</span><br><span class="line">                        <span class="keyword">this</span>.$data[attr] = nodes[key].value</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)(index))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>_complie</code>函数会依次遍历<code>Vue</code>实例下所有的dom节点,并且对含有<code>v-bind</code>、<code>v-model</code>、<code>v-click</code>指令的dom节点进行解析，也就是在这个过程实现了依赖搜集，即数据绑定，如函数所示，依次遍历所有的节点，如果含有<code>v-ckick</code>,则给这个节点绑定<code>click</code>事件并且将Vue实例中<code>methods</code>中对应得方法赋予,如果遇到<code>v-bind</code>,则将这个节点对用得信息使用<code>Watcher</code>类实例化,然后执行<code>updata</code>函数将其可视化,同时这个<code>Watcher</code>实例也被放到了对用得依赖数组里面,<code>v-model</code>也一样.</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>基于这几个函数,就实现了一个简单得双向数据绑定过程,整个源码可以查看<a href="https://github.com/Johnkun1314/Demo/tree/master/vueBind" target="_blank" rel="noopener">我的github</a>,所以下次再谈到<code>vue</code>的数据双向绑定,不再是那句敷衍的:使用<code>Object.defineProperty</code>实现的,一定要自己动手去写出来,不然虽然看明白了,到真正的去讲的时候,还是会讲的不知所谓</p>
-]]></content>
-      <tags>
-        <tag>vue</tag>
-        <tag>数据双向绑</tag>
-        <tag>实现</tag>
-        <tag>原理</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>创新实践三期末报告</title>
-    <url>/2020/01/16/%E5%88%9B%E6%96%B0%E5%AE%9E%E8%B7%B5%E4%B8%89%E6%9C%9F%E6%9C%AB%E6%8A%A5%E5%91%8A/</url>
-    <content><![CDATA[<h1 id="星星优品"><a href="#星星优品" class="headerlink" title="星星优品"></a>星星优品</h1><h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><ul>
-<li>前端：把星星优品的原生App重构为uni-app，并发布为微信小程序。</li>
-<li>后台：重构原有的星星优品的后台，降低后台的维护成本。<a id="more"></a>
-<h2 id="开发环境"><a href="#开发环境" class="headerlink" title="开发环境"></a>开发环境</h2></li>
-<li>IDE：HBuilder X + 微信开发者工具<ul>
-<li>HBuilder X是uni-app官方的IDE，自带的语义提示和格式化代码功能比较强大</li>
-<li>微信开发者工具用来测试微信小程序端的App</li>
-</ul>
-</li>
-<li>运行库：<ul>
-<li>Uni-ui ： UI组件库</li>
-<li>Vant-weapp : UI组件库</li>
-<li>Kitsu ：JSON API框架</li>
-</ul>
-</li>
-</ul>
-<h2 id="项目设计开发过程"><a href="#项目设计开发过程" class="headerlink" title="项目设计开发过程"></a>项目设计开发过程</h2><p>由于本学期我们实际上来说只做了前端，这里只涉及到前端。</p>
-<h3 id="界面设计"><a href="#界面设计" class="headerlink" title="界面设计"></a>界面设计</h3><p>在用户界面的设计上，我们参考了星星优品原来的App界面。</p>
-<h3 id="开发过程"><a href="#开发过程" class="headerlink" title="开发过程"></a>开发过程</h3><p>由于这个小程序的tabbar上有四个选项，为了保证每个tabbar下面的页面都保持一定的格式和一致性，我们团队里负责前端的同学之间的分工是按照tabbar来分工的。<br><a href="https://www.processon.com/view/link/5df8a17ce4b010171a498f04" target="_blank" rel="noopener">这是一个框架图 on ProcessOn</a><br><img src="https://q.2wwg.cn/15765770296033.jpg" alt=""><br>“首页”和“我”的里面功能共用的比较多，比如说开发票，看订单、查账户余额和流水、以及工单的生成和查看，这一部分基本上是王健和王坤同学一起做的，中间的“商品”和“购物车”是由徐哲锦和我一起编写的。<br>在前期开发阶段，我们开发的时间单位是周，每周周末由组长确定好这周的任务，然后按照分工去进行，有问题的时候就及时反馈，再到周末的时候我们汇总一下，合并一下代码，再确定下周需要做什么。</p>
-<h2 id="关键技术和个人心得"><a href="#关键技术和个人心得" class="headerlink" title="关键技术和个人心得"></a>关键技术和个人心得</h2><h4 id="负责方向"><a href="#负责方向" class="headerlink" title="负责方向"></a>负责方向</h4><ul>
-<li>项目 <strong>我的</strong> 页面和 <strong>首页</strong> 相关设计</li>
-</ul>
-<ul>
-<li>由于主要是前端部分，我主要讲述三个以后开发中大概率会碰见的三个问题<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4></li>
-</ul>
-<ol>
-<li>不同宽高比的手机如何计算scroll-view的高度来铺满剩下的空间<br> <img src="https://q.2wwg.cn/15771956345476.jpg" alt="例图"><ul>
-<li>解决方案<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"> 		scrollHeight()&#123;</span><br><span class="line"><span class="keyword">let</span> scW ;</span><br><span class="line"><span class="keyword">let</span> scH ; </span><br><span class="line"><span class="keyword">let</span> rate;</span><br><span class="line"><span class="keyword">let</span> height;</span><br><span class="line">uni.getSystemInfo(&#123;</span><br><span class="line">    success: <span class="function"><span class="keyword">function</span> (<span class="params">res</span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">		rate = <span class="number">750</span>/res.windowWidth;</span><br><span class="line">		height = rate*res.windowHeight<span class="number">-88</span><span class="number">-89</span>;</span><br><span class="line">    &#125;,</span><br><span class="line">	</span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">return</span> height+<span class="string">'rpx'</span>;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li>textarea穿透模态层<br> <img src="https://q.2wwg.cn/15771956527308.jpg" alt="textarea"><ul>
-<li>解决方案<ul>
-<li>在弹出模态层后，隐藏原 <strong>textarea</strong> ，使用一个先设计好的模板代替，更换模板内的内容和 <strong>textarea</strong> 一致即可</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>聊天界面自动滑到底部<br> <img src="https://q.2wwg.cn/15771956744299.jpg" alt="chatwin"><ul>
-<li>解决方案<ul>
-<li>将这个 <strong>scrollview</strong> 的属性 <strong>scroll-top</strong> 设置为一个大于 <strong>scrollview</strong> 总高度即可</li>
-<li>问题<br>如果在用户查看历史消息的时候，同时有消息到达，会自动下滚！</li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-<h4 id="总结（How-To-Be-An-Excellent-Coder-）"><a href="#总结（How-To-Be-An-Excellent-Coder-）" class="headerlink" title="总结（How To Be An Excellent Coder?）"></a>总结（How To Be An Excellent Coder?）</h4><ol>
-<li>不够了解开发工具，对工具使用不透彻<ul>
-<li>开发的最后才知道 <strong>uni-app</strong> 集成了 <strong>vuex</strong><ul>
-<li>vuex了解vue的人都知道这个，但是我们的项目并没有用到这个，这个可以给给我们的项目带来很多好处，比如，我们可以将所有的网络请求放到vuex里面去，然后就不用将请求头挂载到全局上面去了，可以避免去污染原型，同时，如果部分页面需要在vue原型未加载之前就调用请求头，挂载在原型上面是肯定不行的，而在vuex中导入请求头就不会存在这个问题，还有一点就是，他的数据存储，现在如果将数据传给子页面，那么，这个子页面的数据在传过去的那一刻就定好了，而如果使用vuex，可以仅仅传入去一个键值，然后从vuex中getter数据，这样如果数据更新了，页面中的数据会跟着更新的。 </li>
-</ul>
-</li>
-<li>开发的最后才知道 <strong>uni-app</strong> 可以配置 <strong>vue.config.js</strong> 文件<ul>
-<li>这个用过vue 的人应该也知道，最常用的就是在里面配置跨域请求，但是其实还有一个重要的作用，就是可以在里面配置虚拟服务器接口，就像后台的接口一样，好处是显而易见的，首先这个项目由于后台还未开发出来，导致了需要在页面中填入大量的假数据，这样一来，后台开发完成之后，我还需要进行二次开发，需要进行大量的增删改查，增加了很多的工作量，但是如果一开始就使用这个假接口，那么我可以直接以网络请求的格式获取数据，这样一来，当后台制作完后，只需要进行小部分的修改即可。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>没有组件思维<ul>
-<li>整个负责的部分，到最后才封装了一个模态层对话组件，造成了大量的代码冗余，组件思维是非常重要的，但是我对组件的概念似乎出现了一些错误的地方，组件并不仅仅是一个大的功能块，组件甚至小到一个button、一个输入框，如果只是以大型模块去定义组件，那么最后会发现，可能整个项目下来，最坏的情况就是似乎没有一个组件会被用到两次，最后就是一个组件都没有，这其实是非常的不对的，封装组件从一个button开始，这能提高页面样式的统一性，还能为后期的工作去做铺垫，这些封装的组件，时间长了，你也会拥有自己的组件库。</li>
-</ul>
-</li>
-<li><strong>uni-app</strong> 的一点不好<ul>
-<li>没有像原生 <strong>vue</strong> 一样内置路由钩子函数<ul>
-<li>这一点可能是我个人的一些偏见，毕竟uniapp和原生的vue还是有些区别的，vue侧重于web网页，而uniapp主要是移动端如小程序、app等，这两者还是有些区别的，（个人的拙见：可能正是由于适配的范围问题没有实现路由守卫函数，这里拿微信小程序来说，首先，微信小程序没有类似路由拦截的功能，其次，他更没有提供路由拦截类似的接口，所以直接以组件形式注册一个路由拦截器的方案直接被pass掉，而如果想在微信小程序里面实现路由拦截，你只能跳转到对应的页面之后，在其钩子函数里面进行路由判断，而原生的路由拦截是在发出路由请求之前就进行了路由的判断，这区别显然很大，所以，大概是因为一些适配端的问题，导致了uniapp无法无实现路由拦截。）</li>
-</ul>
-</li>
-</ul>
-</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>创新实践</tag>
-        <tag>uniapp</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>水壶问题</title>
-    <url>/2020/03/21/%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h1 id="关于水壶问题的数学解法"><a href="#关于水壶问题的数学解法" class="headerlink" title="关于水壶问题的数学解法"></a>关于水壶问题的数学解法</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>有两个水壶甲和乙,容量分别为 X 和 Y,如何用这两个水壶取出体积为 Z 的水(水可以放在两个水壶)?(<code>X</code> <code>Y</code> <code>Z</code>都是整数)</p>
-<a id="more"></a>
-
-<h2 id="数学解法"><a href="#数学解法" class="headerlink" title="数学解法"></a>数学解法</h2><ol>
-<li>首先我们要确认最后的结果就是两个水壶的水体积之和是 <code>Z</code>,每次操作的情况如下:</li>
-</ol>
-<ul>
-<li>往空水壶里面加满水<br>这种情况就是两个水壶水的总容量加 <code>X或Y</code></li>
-<li>倒掉满水壶水<br>这种情况就是两个水壶水的总容量减去 <code>X或Y</code></li>
-<li>往不满的水壶里加满水<br>这种情况操作没有意义,直接忽略</li>
-<li>一个水壶往另一个水壶倒水<br>这种情况两个水壶水的总容量不变</li>
-</ul>
-<p>如果可以做到,那么 Z 可以表示为 <code>aX+bY = Z</code>,其中<code>a</code> <code>b</code>为整数</p>
-<ol start="2">
-<li>为什么可以这么写呢?<br>首先,按照上面提到的,每次操作后要么是加一个<code>X</code>或者<code>Y</code>,要么减少一个<code>X</code>或者<code>Y</code>,或者不变,最后就是对容量为<code>X</code>的水壶操作了 m 次,其中倒满水的次数减去倒掉一壶水的次数为<code>a</code>,对容量为<code>Y</code>的水壶操作了<code>n</code>次,其中倒满水的次数减去倒掉一壶水的次数为<code>b</code>,最后就是甲水壶操作后对于水总体积的贡献为<code>aX</code>,乙水壶操作后对于水的总体积贡献为<code>bY</code>,两壶共贡献了<code>aX+bY</code>体积的水,如果<code>aX+bY=Z</code>那么可以取出体积为<code>Z</code>的水,否则不可以</li>
-<li><code>aX+bY=Z</code>这个式子表达为如果存在这样的整数<code>a</code>和<code>b</code>, 且<code>k=gcd(X,Y)</code>,那么如果<code>Z%k=0</code>,则表示存在这样的<code>a</code>和<code>b</code>,原题得证.具体证明可以<a href="https://baike.baidu.com/item/%E8%A3%B4%E8%9C%80%E5%AE%9A%E7%90%86/5186593?fr=aladdin" target="_blank" rel="noopener">裴蜀定理</a>.</li>
-</ol>
-<h2 id="收获心得"><a href="#收获心得" class="headerlink" title="收获心得"></a>收获心得</h2><p>我最初是直接取思考使用类似取穷举得方式,排除掉几类特殊情况,可以分为大容器向小容器倒水和小容器向大容器倒水,操作有所不同,但是判定条件一样,即每次判定三种情况:</p>
-<ul>
-<li>小容器水是否满足条件</li>
-<li>大容器水是否满足条件</li>
-<li>两容器水之和是否瞒住条件</li>
-</ul>
-<p>小容器向大容器倒水时当小容器得水能全部导入大容器且大容器刚好满还没有满足<code>Z</code>时,即可以判定为不符合条件.<br>大容器向小容器倒水时当大容器倒完水后,剩余得水体积和小容器容量一样是,还没有满足条件,则可以判定为不符合条件,<br>当两个循环都跳出来后,直接返回<code>false</code><br>这种做法一种是直观逻辑做法,以过程去推,可行,但是性能非常差,而上面提到的做法将这个问题给数学化,抽象化,以结果去推过程,性能比较好.</p>
-]]></content>
-      <tags>
-        <tag>数学思维</tag>
-        <tag>算法</tag>
-        <tag>gcd</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>&#39;腾讯云云函数上传图片&#39;</title>
-    <url>/2020/05/08/%E8%85%BE%E8%AE%AF%E4%BA%91%E4%BA%91%E5%87%BD%E6%95%B0%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87/</url>
-    <content><![CDATA[<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>我们在使用腾讯云云开发开发 vue 项目的时候,时避免不了上传图片的,但是,我们又不能直接使用云开发的接口<code>uploadFile</code>,直接在本地使用这个接口会被拒绝访问,将被判定为跨域,只有被添加到安全域名的服务器线上版本才能够正常的使用,所以我们还是要使用云函数.不仅仅时为了现在开发,还有以后的维护.</p>
-<a id="more"></a>
-<h2 id="具体实现流程"><a href="#具体实现流程" class="headerlink" title="具体实现流程"></a>具体实现流程</h2><p>首先我们来看一下腾讯云云开发的官方文档给出的示例:</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> cloud = <span class="built_in">require</span>(<span class="string">'wx-server-sdk'</span>)</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line">cloud.init(&#123;</span><br><span class="line">  env: cloud.DYNAMIC_CURRENT_ENV</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">exports.main = <span class="keyword">async</span> (event, context) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> fileStream = fs.createReadStream(path.join(__dirname, <span class="string">'demo.jpg'</span>))</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">await</span> cloud.uploadFile(&#123;</span><br><span class="line">    cloudPath: <span class="string">'demo.jpg'</span>,   <span class="comment">//云存储路径，命名限制见文件名命名限制	String</span></span><br><span class="line">    fileContent: fileStream,  <span class="comment">//要上传文件的内容	Buffer 或 fs.ReadStream</span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>真的是十分十分十分的晦涩晦涩又难懂难懂</strong>,看了半天愣是没看明白到底该怎么做,这个<code>fileContent</code>该传个啥?什么格式?我在本地用临时路径和文件整体都测试过,压根就不行,然后就去官方社区找了这方面的问题帖子,发现了一条官方回复:<strong>这个地方必须传递 base64 格式</strong>,为什么不直接在文档里面写清楚…</p>
-<p>我是使用<code>element-ui</code>的<code>el-upload</code>进行文件选择的,下面是我的<code>.vue</code>文件</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div&gt;</span><br><span class="line">    &lt;el-upload</span><br><span class="line">      ref=<span class="string">"upload"</span></span><br><span class="line">      :auto-upload=<span class="string">"false"</span></span><br><span class="line">      :file-list=<span class="string">"fileList"</span></span><br><span class="line">      :multiple=<span class="string">"false"</span></span><br><span class="line">      :limit=<span class="string">"6"</span></span><br><span class="line">      :http-request=<span class="string">"uploadFiles"</span></span><br><span class="line">      accept=<span class="string">"image/jpeg,image/gif,image/png"</span></span><br><span class="line">      action=<span class="string">""</span></span><br><span class="line">    &gt;</span><br><span class="line">      &lt;el-button slot=<span class="string">"trigger"</span> size=<span class="string">"mini"</span> type=<span class="string">"primary"</span>&gt;选取图片&lt;<span class="regexp">/el-button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;span&gt;&amp;nbsp;&lt;/</span>span&gt;</span><br><span class="line">      &lt;el-button @click=<span class="string">"beginUpload"</span> size=<span class="string">"mini"</span> type=<span class="string">"primary"</span></span><br><span class="line">        &gt;点击上传&lt;<span class="regexp">/el-button</span></span><br><span class="line"><span class="regexp">      &gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>el-upload&gt;</span><br><span class="line"></span><br><span class="line">  &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  data() &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      fileList: [],</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  methods: &#123;</span><br><span class="line">    beginUpload() &#123;</span><br><span class="line">      <span class="keyword">this</span>.$refs.upload.submit()</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 这里是自定义上传函数,主要是触发后面的 uploadFile方法`</span></span><br><span class="line">    uploadFiles(params) &#123;</span><br><span class="line">      <span class="keyword">this</span>.$http</span><br><span class="line">        .users()</span><br><span class="line">        .uploadFile(params)</span><br><span class="line">        .then(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(res)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    handlePreview(file) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(file)</span><br><span class="line">    &#125;,</span><br><span class="line">    submitFile(params) &#123;</span><br><span class="line">      <span class="keyword">this</span>.$http.users().uploadFile(params.file)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;style scoped&gt;&lt;/</span>style&gt;</span><br></pre></td></tr></table></figure>
-
-<p>这里是<code>uplaodFile方法</code>,首先是将其进行了<code>base64</code>编码,注意编码的结果一定要处理,不能直接用,编码后的结果中又两部分,头部是文件部分信息,尾部才是图片的编码结果,千万不能直接用这个结果,具体处理看代码第一个<code>Promise</code></p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> uploadFile(params) &#123;</span><br><span class="line">  <span class="comment">// fileID</span></span><br><span class="line">  <span class="keyword">const</span> file = <span class="keyword">await</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> file = params.file</span><br><span class="line">    <span class="keyword">let</span> imgFile</span><br><span class="line">    <span class="keyword">let</span> reader = <span class="keyword">new</span> FileReader()</span><br><span class="line">    reader.readAsDataURL(file)</span><br><span class="line">    reader.onload = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">      imgFile = e.target.result</span><br><span class="line">      <span class="keyword">let</span> base64 = imgFile.split(<span class="string">','</span>)</span><br><span class="line">      resolve(base64[<span class="number">1</span>])</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> name = <span class="string">'file'</span> + <span class="keyword">this</span>.rename() + params.file.name</span><br><span class="line">    app.callFunction(&#123;</span><br><span class="line">      name: <span class="string">'uploadFile'</span>,</span><br><span class="line">      data: &#123;</span><br><span class="line">        cloudPath: name,</span><br><span class="line">        filePath: file</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).then(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(res)</span><br><span class="line">      resolve(dealRes(res))</span><br><span class="line">    &#125;).catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(err)</span><br><span class="line">      resolve(netErr)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>文档看不明白,大概率是我太菜了,而且中间那个<code>base64</code>编码结果因为不明白这个编码结果,导致上传后结果错误,花了太多时间没有找到问题所在,这也不是啥技术问题,还是自身的基础太太太lj了.</p>
-]]></content>
-      <tags>
-        <tag>vue</tag>
-        <tag>腾讯云云函数</tag>
-        <tag>图片上传</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>&#39;TS制作俄罗斯方块&#39;</title>
-    <url>/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/</url>
-    <content><![CDATA[<h2 id="任务描述"><a href="#任务描述" class="headerlink" title="任务描述"></a>任务描述</h2><p>刚刚开始学 TS,边学边做,制作成了第一个 TS 小 Demo 俄罗斯方块,已经挂在<a href="https://github.com/Johnkun1314/TS-Teris" target="_blank" rel="noopener">我的 gitHub</a>上了</p>
-<a id="more"></a>
-
-<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><p>整个项目分为一下几个模块:</p>
-<ul>
-<li><p>Sqaure<br>这是最基础的方块模块,保存对应方块对象的坐标,颜色以及控制其展示与消失的 SquarePageViewer 示例,同时对于属性的访问都采用了访问器的形式,保证在改变方块示例的相关属性时能够调用其控制类去实时渲染,具体代码参见<code>github</code>的<code>Square.ts</code>.</p>
-</li>
-<li><p>SqaureGruop<br>这个是俄罗斯方块组模块,每个实例都保存其所包含的四个基本方块实例,同时使用一个相对坐标去表示其方块组的形状,我们只需要在这个类中记录每个方块组的中心方块坐标,然后将其他方块的坐标与中心坐标的位置挂钩,每次更新中心坐标,都会对应更新其他方块的坐标,依然是采用访问器的形式实现的,同时这个类还实现了计算俄罗斯方块组旋转后的形状函数以及对外暴露的旋转函数 rotate,具体代码参见<code>github</code>的<code>SquareGroup.ts</code>.</p>
-</li>
-<li><p>SqaurePageViewer<br>这个模块实现了 Iview 这个接口,Iview 接口主要是声明了<code>show</code>和<code>remove</code>着两个方法,这个模块的实例保存其所控制的方块示例的<code>dom</code>节点信息,<code>show</code>方法用于将方块实例的相关属性通过<code>Jquery</code>设置好并添加到对应的页面节点中去,其中宽高是从<code>PageConfig</code>中读取出来的,<code>remove</code>方法就是将该节点从对应 dom 容器中移除,具体代码参见<code>github</code>的<code>SqaurePageViewer.ts</code>.</p>
-</li>
-<li><p>Teris<br>这个模块是用来产生方块组的,我们在这里定义了各个方块组的形状,每个形状对应一个类,同时这个类继承<code>SquareGroup类</code>,主要是因为每个方块在旋转的时候旋转有所区别,如正方形方块组不旋转,T 形和 L 形可以随意旋转,而 I 形和 S 形只能旋转 90°,至于为什么,你实现后去看看方块组旋转时就知道了,我们不在<code>SquareGroup</code>这个类中的<code>rotate</code>方法中去实现,因为如果你后面还要添加一些方块的话,你又需要去修改<code>rotate</code>,改了可能还会影响其他的形状方块,扩展性非常差,每个形状的方块组类的形状的相对坐标你们可以自行定义,但是一定要确认好中心坐标为(0,0),不然旋转会很怪,同时,这个模块里面对外暴露一个<code>createTeris</code>方法,这个方法会随机产生一个形状的方块组,具体代码参见<code>github</code>的<code>Teris.ts</code>.</p>
-</li>
-<li><p>TerisRules<br>这个模块时用来指定方块的相关行为的如是否可以旋转或者移动,移动,旋转,是否可消去一行以及消去一行,<code>canIMove</code>方法用于判断当前方块是否可以移动或者旋转主要时通过方块坐标是否越界即超出我们在<code>PageConfig</code>中所定义的容器大小,同时通过判断当前方块旋转后的坐标组中是否有方块坐标与容器中现存的方块坐标有一样的,来决定是否可以旋转,<code>moveAlongdown</code>方法主要时将方块延一个方向移动到底的,<code>moveDirection</code>方法用于计算当前方块沿某个方向移动一个坐标后的坐标,然后调用<code>movePoint</code>方法实现移动,<code>movePoint</code>方法用于移动方块,首先调用<code>canIMove</code>方法判断是否可以移动,然后通过改变方块组的中心方块坐标让方块移动,前面我们提到了方块组里面的中心坐标是和方块组中每个单元方块挂钩的,改变中心方块坐标就会改变其他方块坐标,单元方块坐标被改变的时候,由于我们是通过访问器去改变的,访问器函数会调用其控制实例的 show 方法将实时属性渲染到容器中.<code>rotate</code>方法首先利用<code>afterrotate</code>方法计算出旋转后的坐标，然后用<code>canIMove</code>判断是否可以旋转,最后调用对用方块组类的<code>rotate</code>方法完成旋转,最后是删除满足一行的方块<code>getLineSquare</code>,<code>deleteLine</code>,<code>deleteSquare</code>方法,当方块触发触底事件后,这里的触底不仅仅是容器底部,包括容器中的其他小方块,首先过滤出有方块的行,然后,依次判断同一行号的方块数目有没有和容器格数宽度相等,容器的横向格子数在<code>PageConfig</code>中已经配置好的,如果相等,则进行消除操作,首先循环调用这些可消除方块的<code>Iview</code>属性上的<code>remove</code>方法将其从容器中消除,然后再从当前存放容器中已有小方块实例的属性<code>exist</code>中将其删去,这个属性在<code>Game</code>类中被定义,是一个<code>Point</code>类型的属性<code>Point</code>类型在<code>types</code>中定义,最后将行号小于当前消去行行号的方块的中心点坐标加一让其整体下移一格,具体代码参见<code>github</code>的<code>TerisRules.ts</code></p>
-</li>
-<li><p>GamePageViewer<br>这个类主要是游戏的主界面的控制类,它存放着游戏所需要的 dom 节点,方法包括<code>showOver</code>,<code>pause</code>,<code>init</code>,<code>showScore</code>,<code>showNext</code>,<code>switch</code>,<code>showover</code>方法当游戏结束的时候,<code>Game</code>类实例会调用这个方法,展示游戏结算信息,<code>pause</code>当玩家按下<code>pause</code>时会触发暂停.展示暂停相关信息,<code>init</code>当<code>Game</code>类实例化后会调用该方法,该方法首先根据我们的配置文件<code>PageConfig</code>设置后游戏界面的大小,然后注册对应的游戏控制键盘事件,<code>showScore</code>用于结算后在对应 dom 节点中插入分数,<code>switch</code>用于将预览区的方块组切换到游戏区,<code>showNext</code>用于控制预览区方块组的展示,具体代码参见<code>github</code>的<code>GamePageViewer.ts</code></p>
-</li>
-<li><p>Game<br>这个类是最上层的类,用于控制游戏的状态,包括分数,难度,当前方块组,下一方块组,暂停,开始,已触底方块等方法有<code>pause</code>,切换游戏状态,清除控制方块下路的定时器,调用<code>GamePageViewer</code>实例中的<code>pause</code>方法,<code>controlLeft</code>,<code>controlright</code>,<code>conftrolDown</code>用于控制方块的移动其中方块组的下移触底后需要调用<code>hitBottom</code>方法进行消除判断,<code>controlrotate</code>用于控制方块的旋转,<code>autoToDrop</code>用于设置一个定时器控制方块组自动下落,<code>switchTeris</code>用于切换到下一个方块组,这个函数里面同时要调用<code>isOver</code>方法判断游戏是否结束,<code>isOver</code>方法首先调用<code>TErisRule</code>中的<code>canIMove</code>方法,如果下一个方块组无法移动,则判定游戏结束,同时再次初始化游戏相关信息.<code>reset</code>方法用于设置新方块组的初始位置,跃出边界则移动,<code>hitBottom</code>方法用于将方块组类中的小方块实例放入到<code>exist</code>中,然后调用<code>deleteSquare</code>方法判定是否可以删除,同时放回删除的行数,调用<code>addScore</code>方法根据删除的行数增加分数,然后调用<code>switchTeris</code>切换到下一个方块组,<code>addScore</code>用于增加分数,<code>speed</code>方法会在分数属性的访问器中被调用,如果分数到达了一定的值,将会根据我们在<code>PageConfig</code>方法中时设置好的参数加快方块自动下落的速度</p>
-</li>
-<li><p>PageConfig<br>这个模块放的是游戏的一些配置数据,<code>SquareSize</code>,每个小方块的大小,<code>panelsize</code>,游戏面板的格子数,<code>nextSize</code>,预览区格子数,<code>speed</code>游戏分数对用的方块组下落周期</p>
-</li>
-<li><p>Types<br>这里定义了项目中所有的接口,枚举类型,和类型</p>
-</li>
-<li><p>util<br>这个模块用于产生一个随机数,这个随机数对用一个类型方块组,在<code>Teris.ts</code>中被调用</p>
-</li>
-<li><p>index<br>入口文件</p>
-</li>
-<li><p>其他<br>webpack 的配置和 tsconfig 的配置都是一些基本配置,就不讲了.</p>
-</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以前习惯了 JS 的泛滥生长,想到哪写到哪,习惯于以过程去思考问题,通常有一些函数写的非常的庞大,虽然有时会刻意的去拆分一些函数,但是总是充满着随意性,没有一个明显的意图,除非某一段代码被重复写了很多遍,才会将其拿出去,真的很糟糕,但是 TS 这种面向对象编程的模式,确实让我耳目一新,虽然我以前接触过 java,甚至觉得这两怎么这么像,但毕竟用处不一样,这种面向对象的模式,将这个游戏自顶向下进行拆分,大类分为行为类和数据类,同时行为类又分为行为命令派发类和行为命令执行类,从整个游戏类到最基础的小方块类,这种拆分思维确实很值得学习,大大降低了代码的耦合度,可拓展性非常好.而且,而且,特别是<code>types.ts</code>这个文件,以前我们定标准一般是使用文档,但是这种属于弱标准,没有强制约束力,比如经典的<code>name</code>写成<code>nema</code>,别说你没写过哈,但是 TS 通过代码的形式去强制定义标准,强制我们去实现.这是很棒的.刚刚接触的时候,我一直在想,这玩意这么绕来绕去,花里胡哨,现在我是越来越喜欢这东西了.有点回不去的感觉了.</p>
-]]></content>
-      <tags>
-        <tag>webpack</tag>
-        <tag>TS</tag>
-        <tag>面向对象编程</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>weekly_2</title>
-    <url>/2020/02/26/weekly-2/</url>
-    <content><![CDATA[<h1 id="第二周周报"><a href="#第二周周报" class="headerlink" title="第二周周报"></a>第二周周报</h1><hr>
-<h3 id="任务列表"><a href="#任务列表" class="headerlink" title="任务列表"></a>任务列表</h3><ul>
-<li>获取appid,安装微信小程序开发工具</li>
-<li><code>helloWorld</code>运行</li>
-<li>微信小程序项目结构</li>
-<li>列举一个自己曾经开发过的h5应用或桌面网站项目，讨论该项目：<ul>
-<li>与微信小程序所涉及的开发技术(如开发语言、开发框架、开发平台等)之间有哪些联系与区别？</li>
-<li>与微信小程序的所涉及的开发流程(如编辑、编译、调试、部署、发布等)之间有哪些联系与区别？</li>
-<li>与微信小程序的所涉及的开发环境(如浏览器、编辑器、调试工具等)之间有哪些联系与区别？</li>
-</ul>
-</li>
-<li>其他问题<ul>
-<li>wxml、wxss等文件与html/css等文件有何异同？譬如标记名称、属性、值等</li>
-<li>与h5项目相比较，小程序中有哪些专属的配置文件？</li>
-<li>小程序开发中是否存在编译(compile)或转译(transplie)的概念？</li>
-<li>请比较wxml/wxss和生成后的html/css文件之前的差异，并与scss预处理器、babel等技术进行比较？</li>
-</ul>
-</li>
-<li>总结</li>
-</ul>
-<hr>
-<h4 id="微信开发者工具安装与helloWorld运行"><a href="#微信开发者工具安装与helloWorld运行" class="headerlink" title="微信开发者工具安装与helloWorld运行"></a>微信开发者工具安装与<code>helloWorld</code>运行</h4><p>略</p>
-<h4 id="列举一个自己曾经开发过的h5应用或桌面网站项目，讨论该项目"><a href="#列举一个自己曾经开发过的h5应用或桌面网站项目，讨论该项目" class="headerlink" title="列举一个自己曾经开发过的h5应用或桌面网站项目，讨论该项目"></a>列举一个自己曾经开发过的h5应用或桌面网站项目，讨论该项目</h4><ul>
-<li>PS:使用<code>nuxt.js</code>,<code>koa2</code>,<code>mongodb</code>开发的项目,具体请见<a href="http://wellkun.com" target="_blank" rel="noopener">我的项目主页</a></li>
-</ul>
-<ol>
-<li>与微信小程序所涉及的开发技术(如开发语言、开发框架、开发平台等)之间有哪些联系与区别？<br>小程序与传统的桌面网站项目都是使用<strong>javascript</strong>, <code>nuxt</code>是基于<code>vue.js</code>的应用框架,而微信小程序是Vue风格,这两个框架都支持自定义开发组件,都支持引入<code>npm</code>包,都支持<code>Promise</code>,都支持<code>ES6</code>,都支持多种css与处理语言(如<code>less``Sass``Styus</code>,都支持<code>Typescript</code>),但是微信小程序只支持在<strong>微信开发者工具</strong>中进行调试,代码的开发可以在任意的开发工具中进行,而<code>nuxt</code>则可以在所有的浏览器(IE9+)中进行调试,在任何开发工具中开发</li>
-<li>与微信小程序的所涉及的开发流程(如编辑、编译、调试、部署、发布等)之间有哪些联系与区别？</li>
-</ol>
-<p> <strong>微信小程序</strong>(包括第三方框架)利用自身的编译工具进行编译打包,而<code>nuxt</code>则是集成了<code>webpack</code>,利用<code>webpack</code>去打包项目,微信小程序的部署比较的繁琐,需要在<strong>开发者平台</strong>对项目进行审核提交,待批准后才可以上线,不然只是一个体验版,只有指定人员才能使用,而<code>nuxt</code>的部署比较简单,详细部署过程可以参见<a href="http://b.wellkun.com" target="_blank" rel="noopener">我的博客</a>,在本地将项目打包后,将项目提交到服务器上面,当然,也可以利用<code>github</code>进行自动化部署,提交到服务器后,安装完依赖后利用<code>pm2</code>启动即可上线了<br> 3. 与微信小程序的所涉及的开发环境(如浏览器、编辑器、调试工具等)之间有哪些联系与区别？<br> <strong>微信小程序</strong>只需要安装<strong>微信开发者工具</strong>以及<code>node.js</code>就可以开发了,而<code>nuxt</code>则只需要安装<code>node.js</code>即可,然后使用在线脚手架工具进行项目的创建,<strong>微信小程序</strong>可以在<strong>微信开发者工具</strong>以及真机中调试,而<code>nuxt</code>只能在浏览器中调试</p>
-<hr>
-<h4 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h4><ol>
-<li>wxml、wxss等文件与html/css等文件有何异同？譬如标记名称、属性、值等<br>这两种文件没有什么明显的不同,只是文件的尾缀有所区别,同时,由于微信小程序的不断开发完善,<code>wxss</code>所支持的属性选择器也日渐完善,<code>wxml</code>中使用的最基本的标签组件是<code>&lt;text&gt;</code>,而<code>html</code>中是<code>div</code>,<code>wxml</code>有自己封装好的一系列组件可以直接使用,<code>html</code>在<code>H5</code>中慢慢有了许多有较强互动性的标签</li>
-<li>与h5项目相比较，小程序中有哪些专属的配置文件？</li>
-<li>小程序开发中是否存在编译(compile)或转译(transplie)的概念？</li>
-<li>请比较wxml/wxss和生成后的html/css文件之前的差异，并与scss预处理器、babel等技术进行比较？<a id="more"></a>
-</li>
-</ol>
-]]></content>
-      <tags>
-        <tag>创新实践</tag>
-        <tag>周报</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>&#39;vue中的虚拟dom&#39;</title>
     <url>/2020/05/19/vue%E4%B8%AD%E7%9A%84%E8%99%9A%E6%8B%9Fdom/</url>
     <content><![CDATA[<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>vue 有几个重要的点,前面我们学过了数据双向绑定(<a href="https://b.wellkun.com/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/#more" target="_blank" rel="noopener">传送门</a>,),还有一个重要的点就是虚拟 dom 了.</p>
@@ -630,6 +393,196 @@
       <tags>
         <tag>vue</tag>
         <tag>虚拟dom</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>&#39;腾讯云云函数上传图片&#39;</title>
+    <url>/2020/05/08/%E8%85%BE%E8%AE%AF%E4%BA%91%E4%BA%91%E5%87%BD%E6%95%B0%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87/</url>
+    <content><![CDATA[<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>我们在使用腾讯云云开发开发 vue 项目的时候,时避免不了上传图片的,但是,我们又不能直接使用云开发的接口<code>uploadFile</code>,直接在本地使用这个接口会被拒绝访问,将被判定为跨域,只有被添加到安全域名的服务器线上版本才能够正常的使用,所以我们还是要使用云函数.不仅仅时为了现在开发,还有以后的维护.</p>
+<a id="more"></a>
+<h2 id="具体实现流程"><a href="#具体实现流程" class="headerlink" title="具体实现流程"></a>具体实现流程</h2><p>首先我们来看一下腾讯云云开发的官方文档给出的示例:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> cloud = <span class="built_in">require</span>(<span class="string">'wx-server-sdk'</span>)</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line">cloud.init(&#123;</span><br><span class="line">  env: cloud.DYNAMIC_CURRENT_ENV</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">exports.main = <span class="keyword">async</span> (event, context) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> fileStream = fs.createReadStream(path.join(__dirname, <span class="string">'demo.jpg'</span>))</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">await</span> cloud.uploadFile(&#123;</span><br><span class="line">    cloudPath: <span class="string">'demo.jpg'</span>,   <span class="comment">//云存储路径，命名限制见文件名命名限制	String</span></span><br><span class="line">    fileContent: fileStream,  <span class="comment">//要上传文件的内容	Buffer 或 fs.ReadStream</span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>真的是十分十分十分的晦涩晦涩又难懂难懂</strong>,看了半天愣是没看明白到底该怎么做,这个<code>fileContent</code>该传个啥?什么格式?我在本地用临时路径和文件整体都测试过,压根就不行,然后就去官方社区找了这方面的问题帖子,发现了一条官方回复:<strong>这个地方必须传递 base64 格式</strong>,为什么不直接在文档里面写清楚…</p>
+<p>我是使用<code>element-ui</code>的<code>el-upload</code>进行文件选择的,下面是我的<code>.vue</code>文件</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div&gt;</span><br><span class="line">    &lt;el-upload</span><br><span class="line">      ref=<span class="string">"upload"</span></span><br><span class="line">      :auto-upload=<span class="string">"false"</span></span><br><span class="line">      :file-list=<span class="string">"fileList"</span></span><br><span class="line">      :multiple=<span class="string">"false"</span></span><br><span class="line">      :limit=<span class="string">"6"</span></span><br><span class="line">      :http-request=<span class="string">"uploadFiles"</span></span><br><span class="line">      accept=<span class="string">"image/jpeg,image/gif,image/png"</span></span><br><span class="line">      action=<span class="string">""</span></span><br><span class="line">    &gt;</span><br><span class="line">      &lt;el-button slot=<span class="string">"trigger"</span> size=<span class="string">"mini"</span> type=<span class="string">"primary"</span>&gt;选取图片&lt;<span class="regexp">/el-button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;span&gt;&amp;nbsp;&lt;/</span>span&gt;</span><br><span class="line">      &lt;el-button @click=<span class="string">"beginUpload"</span> size=<span class="string">"mini"</span> type=<span class="string">"primary"</span></span><br><span class="line">        &gt;点击上传&lt;<span class="regexp">/el-button</span></span><br><span class="line"><span class="regexp">      &gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>el-upload&gt;</span><br><span class="line"></span><br><span class="line">  &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  data() &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      fileList: [],</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  methods: &#123;</span><br><span class="line">    beginUpload() &#123;</span><br><span class="line">      <span class="keyword">this</span>.$refs.upload.submit()</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 这里是自定义上传函数,主要是触发后面的 uploadFile方法`</span></span><br><span class="line">    uploadFiles(params) &#123;</span><br><span class="line">      <span class="keyword">this</span>.$http</span><br><span class="line">        .users()</span><br><span class="line">        .uploadFile(params)</span><br><span class="line">        .then(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(res)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;,</span><br><span class="line"></span><br><span class="line">    handlePreview(file) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(file)</span><br><span class="line">    &#125;,</span><br><span class="line">    submitFile(params) &#123;</span><br><span class="line">      <span class="keyword">this</span>.$http.users().uploadFile(params.file)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;style scoped&gt;&lt;/</span>style&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这里是<code>uplaodFile方法</code>,首先是将其进行了<code>base64</code>编码,注意编码的结果一定要处理,不能直接用,编码后的结果中又两部分,头部是文件部分信息,尾部才是图片的编码结果,千万不能直接用这个结果,具体处理看代码第一个<code>Promise</code></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> uploadFile(params) &#123;</span><br><span class="line">  <span class="comment">// fileID</span></span><br><span class="line">  <span class="keyword">const</span> file = <span class="keyword">await</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> file = params.file</span><br><span class="line">    <span class="keyword">let</span> imgFile</span><br><span class="line">    <span class="keyword">let</span> reader = <span class="keyword">new</span> FileReader()</span><br><span class="line">    reader.readAsDataURL(file)</span><br><span class="line">    reader.onload = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">      imgFile = e.target.result</span><br><span class="line">      <span class="keyword">let</span> base64 = imgFile.split(<span class="string">','</span>)</span><br><span class="line">      resolve(base64[<span class="number">1</span>])</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> name = <span class="string">'file'</span> + <span class="keyword">this</span>.rename() + params.file.name</span><br><span class="line">    app.callFunction(&#123;</span><br><span class="line">      name: <span class="string">'uploadFile'</span>,</span><br><span class="line">      data: &#123;</span><br><span class="line">        cloudPath: name,</span><br><span class="line">        filePath: file</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).then(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(res)</span><br><span class="line">      resolve(dealRes(res))</span><br><span class="line">    &#125;).catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(err)</span><br><span class="line">      resolve(netErr)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>文档看不明白,大概率是我太菜了,而且中间那个<code>base64</code>编码结果因为不明白这个编码结果,导致上传后结果错误,花了太多时间没有找到问题所在,这也不是啥技术问题,还是自身的基础太太太lj了.</p>
+]]></content>
+      <tags>
+        <tag>vue</tag>
+        <tag>腾讯云云函数</tag>
+        <tag>图片上传</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>水壶问题</title>
+    <url>/2020/03/21/%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h1 id="关于水壶问题的数学解法"><a href="#关于水壶问题的数学解法" class="headerlink" title="关于水壶问题的数学解法"></a>关于水壶问题的数学解法</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>有两个水壶甲和乙,容量分别为 X 和 Y,如何用这两个水壶取出体积为 Z 的水(水可以放在两个水壶)?(<code>X</code> <code>Y</code> <code>Z</code>都是整数)</p>
+<a id="more"></a>
+
+<h2 id="数学解法"><a href="#数学解法" class="headerlink" title="数学解法"></a>数学解法</h2><ol>
+<li>首先我们要确认最后的结果就是两个水壶的水体积之和是 <code>Z</code>,每次操作的情况如下:</li>
+</ol>
+<ul>
+<li>往空水壶里面加满水<br>这种情况就是两个水壶水的总容量加 <code>X或Y</code></li>
+<li>倒掉满水壶水<br>这种情况就是两个水壶水的总容量减去 <code>X或Y</code></li>
+<li>往不满的水壶里加满水<br>这种情况操作没有意义,直接忽略</li>
+<li>一个水壶往另一个水壶倒水<br>这种情况两个水壶水的总容量不变</li>
+</ul>
+<p>如果可以做到,那么 Z 可以表示为 <code>aX+bY = Z</code>,其中<code>a</code> <code>b</code>为整数</p>
+<ol start="2">
+<li>为什么可以这么写呢?<br>首先,按照上面提到的,每次操作后要么是加一个<code>X</code>或者<code>Y</code>,要么减少一个<code>X</code>或者<code>Y</code>,或者不变,最后就是对容量为<code>X</code>的水壶操作了 m 次,其中倒满水的次数减去倒掉一壶水的次数为<code>a</code>,对容量为<code>Y</code>的水壶操作了<code>n</code>次,其中倒满水的次数减去倒掉一壶水的次数为<code>b</code>,最后就是甲水壶操作后对于水总体积的贡献为<code>aX</code>,乙水壶操作后对于水的总体积贡献为<code>bY</code>,两壶共贡献了<code>aX+bY</code>体积的水,如果<code>aX+bY=Z</code>那么可以取出体积为<code>Z</code>的水,否则不可以</li>
+<li><code>aX+bY=Z</code>这个式子表达为如果存在这样的整数<code>a</code>和<code>b</code>, 且<code>k=gcd(X,Y)</code>,那么如果<code>Z%k=0</code>,则表示存在这样的<code>a</code>和<code>b</code>,原题得证.具体证明可以<a href="https://baike.baidu.com/item/%E8%A3%B4%E8%9C%80%E5%AE%9A%E7%90%86/5186593?fr=aladdin" target="_blank" rel="noopener">裴蜀定理</a>.</li>
+</ol>
+<h2 id="收获心得"><a href="#收获心得" class="headerlink" title="收获心得"></a>收获心得</h2><p>我最初是直接取思考使用类似取穷举得方式,排除掉几类特殊情况,可以分为大容器向小容器倒水和小容器向大容器倒水,操作有所不同,但是判定条件一样,即每次判定三种情况:</p>
+<ul>
+<li>小容器水是否满足条件</li>
+<li>大容器水是否满足条件</li>
+<li>两容器水之和是否瞒住条件</li>
+</ul>
+<p>小容器向大容器倒水时当小容器得水能全部导入大容器且大容器刚好满还没有满足<code>Z</code>时,即可以判定为不符合条件.<br>大容器向小容器倒水时当大容器倒完水后,剩余得水体积和小容器容量一样是,还没有满足条件,则可以判定为不符合条件,<br>当两个循环都跳出来后,直接返回<code>false</code><br>这种做法一种是直观逻辑做法,以过程去推,可行,但是性能非常差,而上面提到的做法将这个问题给数学化,抽象化,以结果去推过程,性能比较好.</p>
+]]></content>
+      <tags>
+        <tag>数学思维</tag>
+        <tag>算法</tag>
+        <tag>gcd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>vue双向绑定原理及实现</title>
+    <url>/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h1 id="vue-数据双向绑定的原理以及实现"><a href="#vue-数据双向绑定的原理以及实现" class="headerlink" title="vue 数据双向绑定的原理以及实现"></a>vue 数据双向绑定的原理以及实现</h1><p><strong>vue</strong>数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看<strong>vue</strong>的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是<strong>vue</strong>最基础的双向数据绑定,<a href="https://github.com/Johnkun1314/bindDataAndVDom/tree/master/bindData" target="_blank" rel="noopener">源码传送门</a></p>
+<a id="more"></a>
+
+<h2 id="基本原理图"><a href="#基本原理图" class="headerlink" title="基本原理图"></a>基本原理图</h2><p><img src="http://wellkun.com:8982/images/1586428461024-89763.png" alt="原理图"></p>
+<p>这是我对于双向绑定的初步认识,大概就是这么个过程</p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>先给出一个基本的<strong>HTML</strong>结构</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">h1</span> <span class="attr">v-bind</span>=<span class="string">"test"</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">v-model</span>=<span class="string">"test"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">v-click</span>=<span class="string">"increase"</span>&gt;</span>增加<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后再新建一个<strong>Vue</strong>对象</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> app = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">        el:<span class="string">"#app"</span>,</span><br><span class="line">        data:&#123;</span><br><span class="line">            test:<span class="number">1</span></span><br><span class="line">        &#125;,</span><br><span class="line">        methods:&#123;</span><br><span class="line">            increase: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="keyword">this</span>.test = <span class="keyword">this</span>.test + <span class="number">1</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br></pre></td></tr></table></figure>
+
+<p>我们在另一个<code>js</code>文件里面新建一个<code>Vue</code>类</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vue</span></span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(opt)&#123;</span><br><span class="line">        <span class="keyword">this</span>._init(opt)</span><br><span class="line">    &#125;</span><br><span class="line">    _init()&#123;</span><br><span class="line">        <span class="keyword">this</span>.$opt = opt</span><br><span class="line">        <span class="keyword">this</span>.$methods = opt.methods</span><br><span class="line">        <span class="keyword">this</span>.$el = <span class="built_in">document</span>.querySelector(opt.el)</span><br><span class="line">        <span class="keyword">this</span>.$data = opt.data</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>._binding = &#123;&#125; <span class="comment">//这个是依赖搜集容器,后面会讲</span></span><br><span class="line">        <span class="keyword">this</span>._observer(<span class="keyword">this</span>.$data)</span><br><span class="line">        <span class="keyword">this</span>._complie(<span class="keyword">this</span>.$el)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在实现<code>_observer</code>函数和<code>complie</code>函数之前我们要先了解一个 api<code>Object.defineProperty</code>,这个 api 是实现数据双向绑定的关键所在</p>
+<blockquote>
+<p>Object.defineProperty(obj,key,chara)<br>第一个参数是传入的对象<br>第二个参数是对象的属性名<br>第三个参数是这个属性的特征值,如下:<br>configurable //是否可删除<br>emunerable //是否可枚举<br>writable //是否可写<br>set 和 get 函数</p>
+</blockquote>
+<p>接下来我们要实现<code>_observer</code>函数和<code>complie</code>函数去实现数据的绑定和依赖搜集,</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">_observer(obj) &#123;</span><br><span class="line">      <span class="keyword">let</span> value</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">          <span class="keyword">if</span> (obj.hasOwnProperty(key)) &#123;</span><br><span class="line">              value = obj[key]</span><br><span class="line">              <span class="keyword">if</span> (<span class="keyword">typeof</span> value == <span class="string">'object'</span>) &#123;</span><br><span class="line">                  <span class="keyword">this</span>._observer(value)</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">this</span>._binding[key] = &#123;</span><br><span class="line">                  _directives: []</span><br><span class="line">              &#125;</span><br><span class="line"></span><br><span class="line">              <span class="built_in">Object</span>.defineProperty(<span class="keyword">this</span>.$data, key, &#123;</span><br><span class="line">                  configurable: <span class="literal">true</span>,</span><br><span class="line">                  enumerable: <span class="literal">true</span>,</span><br><span class="line">                  <span class="keyword">get</span>: function () &#123;</span><br><span class="line">                      <span class="keyword">return</span> value</span><br><span class="line">                  &#125;,</span><br><span class="line">                  <span class="keyword">set</span>: (newVal)=&gt; &#123;</span><br><span class="line">                      <span class="keyword">if</span> (value !== newVal) &#123;</span><br><span class="line">                          value = newVal</span><br><span class="line">                          <span class="keyword">this</span>._binding[key]._directives.map(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">                              item.update()</span><br><span class="line">                          &#125;)</span><br><span class="line">                      &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;)</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数主要是用来解析<code>data</code>以及驱动数据更细,这个函数里面使用的<code>_binding</code>就是依赖搜集的容器,可以看到<code>data</code>的每个属性都在<code>_binding</code>里面绑定过了,同时在某个属性值更改的时候,即触发了<code>set</code>函数,首先就跟新 <code>data</code>对应的值,然后遍历对应的依赖数组,即所有使用过这个属性的地方都会执行<code>updata</code>函数,通知其更新,这个<code>updata</code>函数是<code>Watcher</code>原型上面的一个方法,这个数组里面放的就是一个个<code>Watcher</code>对应的实例对象</p>
+<p><code>Watcher</code>类是在依赖搜集的时候,如果 dom 节点使用了<code>data</code>,则会将这个 dom 节点对应的信息使用<code>Watcher</code>类声明并存储在<code>_binding</code>对用的数组里,具体参数的意义请看<code>_complie</code>函数,<code>Watcher</code>类的实现如下如下:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Watcher</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>(name,el,vm,exp,attr) &#123;</span><br><span class="line">        <span class="keyword">this</span>.exp = exp</span><br><span class="line">        <span class="keyword">this</span>.el = el</span><br><span class="line">        <span class="keyword">this</span>.name = name</span><br><span class="line">        <span class="keyword">this</span>.attr = attr</span><br><span class="line">        <span class="keyword">this</span>.vm =vm</span><br><span class="line">        <span class="keyword">this</span>.update()</span><br><span class="line">    &#125;</span><br><span class="line">    update() &#123;</span><br><span class="line">        <span class="keyword">this</span>.el[<span class="keyword">this</span>.attr] = <span class="keyword">this</span>.vm.$data[<span class="keyword">this</span>.exp]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>_complie</code>函数的实现如下:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">_complie(root) &#123;</span><br><span class="line">        <span class="keyword">let</span> nodes = root.children</span><br><span class="line">        <span class="keyword">let</span> len = nodes.length</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> index = <span class="number">0</span>; index &lt; len; index++) &#123;</span><br><span class="line">            <span class="keyword">let</span> node = nodes[index]</span><br><span class="line">            <span class="keyword">if</span> (node.children.length) &#123;</span><br><span class="line">                <span class="keyword">this</span>._complie(node)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-bind'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-bind'</span>)</span><br><span class="line">                <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'text'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'innerHTML'</span>))</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-click'</span>)) &#123;</span><br><span class="line">                <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-click'</span>)</span><br><span class="line">                node.onclick = <span class="function">(<span class="params">(</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span>  <span class="keyword">this</span>.$methods[attr].bind(<span class="keyword">this</span>.$data)</span><br><span class="line"></span><br><span class="line">                &#125;)()</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node.hasAttribute(<span class="string">'v-model'</span>) &amp;&amp; (node.tagName == <span class="string">'INPUT'</span> || node.tagName == <span class="string">'TEXTAREA'</span>)) &#123;</span><br><span class="line">                node.addEventListener(<span class="string">'input'</span>, (<span class="function">(<span class="params">key</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">let</span> attr = node.getAttribute(<span class="string">'v-model'</span>)</span><br><span class="line">                    <span class="keyword">this</span>._binding[attr]._directives.push(<span class="keyword">new</span> Watcher(<span class="string">'input'</span>, node, <span class="keyword">this</span>, attr, <span class="string">'value'</span>))</span><br><span class="line">                    <span class="keyword">return</span> <span class="function"><span class="params">()</span>=&gt;</span>&#123;</span><br><span class="line">                        <span class="keyword">this</span>.$data[attr] = nodes[key].value</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)(index))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>_complie</code>函数会依次遍历<code>Vue</code>实例下所有的dom节点,并且对含有<code>v-bind</code>、<code>v-model</code>、<code>v-click</code>指令的dom节点进行解析，也就是在这个过程实现了依赖搜集，即数据绑定，如函数所示，依次遍历所有的节点，如果含有<code>v-ckick</code>,则给这个节点绑定<code>click</code>事件并且将Vue实例中<code>methods</code>中对应得方法赋予,如果遇到<code>v-bind</code>,则将这个节点对用得信息使用<code>Watcher</code>类实例化,然后执行<code>updata</code>函数将其可视化,同时这个<code>Watcher</code>实例也被放到了对用得依赖数组里面,<code>v-model</code>也一样.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>基于这几个函数,就实现了一个简单得双向数据绑定过程,整个源码可以查看<a href="https://github.com/Johnkun1314/Demo/tree/master/vueBind" target="_blank" rel="noopener">我的github</a>,所以下次再谈到<code>vue</code>的数据双向绑定,不再是那句敷衍的:使用<code>Object.defineProperty</code>实现的,一定要自己动手去写出来,不然虽然看明白了,到真正的去讲的时候,还是会讲的不知所谓</p>
+]]></content>
+      <tags>
+        <tag>vue</tag>
+        <tag>数据双向绑</tag>
+        <tag>实现</tag>
+        <tag>原理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>&#39;TS制作俄罗斯方块&#39;</title>
+    <url>/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/</url>
+    <content><![CDATA[<h2 id="任务描述"><a href="#任务描述" class="headerlink" title="任务描述"></a>任务描述</h2><p>刚刚开始学 TS,边学边做,制作成了第一个 TS 小 Demo 俄罗斯方块,已经挂在<a href="https://github.com/Johnkun1314/TS-Teris" target="_blank" rel="noopener">我的 gitHub</a>上了</p>
+<a id="more"></a>
+
+<h2 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h2><p>整个项目分为一下几个模块:</p>
+<ul>
+<li><p>Sqaure<br>这是最基础的方块模块,保存对应方块对象的坐标,颜色以及控制其展示与消失的 SquarePageViewer 示例,同时对于属性的访问都采用了访问器的形式,保证在改变方块示例的相关属性时能够调用其控制类去实时渲染,具体代码参见<code>github</code>的<code>Square.ts</code>.</p>
+</li>
+<li><p>SqaureGruop<br>这个是俄罗斯方块组模块,每个实例都保存其所包含的四个基本方块实例,同时使用一个相对坐标去表示其方块组的形状,我们只需要在这个类中记录每个方块组的中心方块坐标,然后将其他方块的坐标与中心坐标的位置挂钩,每次更新中心坐标,都会对应更新其他方块的坐标,依然是采用访问器的形式实现的,同时这个类还实现了计算俄罗斯方块组旋转后的形状函数以及对外暴露的旋转函数 rotate,具体代码参见<code>github</code>的<code>SquareGroup.ts</code>.</p>
+</li>
+<li><p>SqaurePageViewer<br>这个模块实现了 Iview 这个接口,Iview 接口主要是声明了<code>show</code>和<code>remove</code>着两个方法,这个模块的实例保存其所控制的方块示例的<code>dom</code>节点信息,<code>show</code>方法用于将方块实例的相关属性通过<code>Jquery</code>设置好并添加到对应的页面节点中去,其中宽高是从<code>PageConfig</code>中读取出来的,<code>remove</code>方法就是将该节点从对应 dom 容器中移除,具体代码参见<code>github</code>的<code>SqaurePageViewer.ts</code>.</p>
+</li>
+<li><p>Teris<br>这个模块是用来产生方块组的,我们在这里定义了各个方块组的形状,每个形状对应一个类,同时这个类继承<code>SquareGroup类</code>,主要是因为每个方块在旋转的时候旋转有所区别,如正方形方块组不旋转,T 形和 L 形可以随意旋转,而 I 形和 S 形只能旋转 90°,至于为什么,你实现后去看看方块组旋转时就知道了,我们不在<code>SquareGroup</code>这个类中的<code>rotate</code>方法中去实现,因为如果你后面还要添加一些方块的话,你又需要去修改<code>rotate</code>,改了可能还会影响其他的形状方块,扩展性非常差,每个形状的方块组类的形状的相对坐标你们可以自行定义,但是一定要确认好中心坐标为(0,0),不然旋转会很怪,同时,这个模块里面对外暴露一个<code>createTeris</code>方法,这个方法会随机产生一个形状的方块组,具体代码参见<code>github</code>的<code>Teris.ts</code>.</p>
+</li>
+<li><p>TerisRules<br>这个模块时用来指定方块的相关行为的如是否可以旋转或者移动,移动,旋转,是否可消去一行以及消去一行,<code>canIMove</code>方法用于判断当前方块是否可以移动或者旋转主要时通过方块坐标是否越界即超出我们在<code>PageConfig</code>中所定义的容器大小,同时通过判断当前方块旋转后的坐标组中是否有方块坐标与容器中现存的方块坐标有一样的,来决定是否可以旋转,<code>moveAlongdown</code>方法主要时将方块延一个方向移动到底的,<code>moveDirection</code>方法用于计算当前方块沿某个方向移动一个坐标后的坐标,然后调用<code>movePoint</code>方法实现移动,<code>movePoint</code>方法用于移动方块,首先调用<code>canIMove</code>方法判断是否可以移动,然后通过改变方块组的中心方块坐标让方块移动,前面我们提到了方块组里面的中心坐标是和方块组中每个单元方块挂钩的,改变中心方块坐标就会改变其他方块坐标,单元方块坐标被改变的时候,由于我们是通过访问器去改变的,访问器函数会调用其控制实例的 show 方法将实时属性渲染到容器中.<code>rotate</code>方法首先利用<code>afterrotate</code>方法计算出旋转后的坐标，然后用<code>canIMove</code>判断是否可以旋转,最后调用对用方块组类的<code>rotate</code>方法完成旋转,最后是删除满足一行的方块<code>getLineSquare</code>,<code>deleteLine</code>,<code>deleteSquare</code>方法,当方块触发触底事件后,这里的触底不仅仅是容器底部,包括容器中的其他小方块,首先过滤出有方块的行,然后,依次判断同一行号的方块数目有没有和容器格数宽度相等,容器的横向格子数在<code>PageConfig</code>中已经配置好的,如果相等,则进行消除操作,首先循环调用这些可消除方块的<code>Iview</code>属性上的<code>remove</code>方法将其从容器中消除,然后再从当前存放容器中已有小方块实例的属性<code>exist</code>中将其删去,这个属性在<code>Game</code>类中被定义,是一个<code>Point</code>类型的属性<code>Point</code>类型在<code>types</code>中定义,最后将行号小于当前消去行行号的方块的中心点坐标加一让其整体下移一格,具体代码参见<code>github</code>的<code>TerisRules.ts</code></p>
+</li>
+<li><p>GamePageViewer<br>这个类主要是游戏的主界面的控制类,它存放着游戏所需要的 dom 节点,方法包括<code>showOver</code>,<code>pause</code>,<code>init</code>,<code>showScore</code>,<code>showNext</code>,<code>switch</code>,<code>showover</code>方法当游戏结束的时候,<code>Game</code>类实例会调用这个方法,展示游戏结算信息,<code>pause</code>当玩家按下<code>pause</code>时会触发暂停.展示暂停相关信息,<code>init</code>当<code>Game</code>类实例化后会调用该方法,该方法首先根据我们的配置文件<code>PageConfig</code>设置后游戏界面的大小,然后注册对应的游戏控制键盘事件,<code>showScore</code>用于结算后在对应 dom 节点中插入分数,<code>switch</code>用于将预览区的方块组切换到游戏区,<code>showNext</code>用于控制预览区方块组的展示,具体代码参见<code>github</code>的<code>GamePageViewer.ts</code></p>
+</li>
+<li><p>Game<br>这个类是最上层的类,用于控制游戏的状态,包括分数,难度,当前方块组,下一方块组,暂停,开始,已触底方块等方法有<code>pause</code>,切换游戏状态,清除控制方块下路的定时器,调用<code>GamePageViewer</code>实例中的<code>pause</code>方法,<code>controlLeft</code>,<code>controlright</code>,<code>conftrolDown</code>用于控制方块的移动其中方块组的下移触底后需要调用<code>hitBottom</code>方法进行消除判断,<code>controlrotate</code>用于控制方块的旋转,<code>autoToDrop</code>用于设置一个定时器控制方块组自动下落,<code>switchTeris</code>用于切换到下一个方块组,这个函数里面同时要调用<code>isOver</code>方法判断游戏是否结束,<code>isOver</code>方法首先调用<code>TErisRule</code>中的<code>canIMove</code>方法,如果下一个方块组无法移动,则判定游戏结束,同时再次初始化游戏相关信息.<code>reset</code>方法用于设置新方块组的初始位置,跃出边界则移动,<code>hitBottom</code>方法用于将方块组类中的小方块实例放入到<code>exist</code>中,然后调用<code>deleteSquare</code>方法判定是否可以删除,同时放回删除的行数,调用<code>addScore</code>方法根据删除的行数增加分数,然后调用<code>switchTeris</code>切换到下一个方块组,<code>addScore</code>用于增加分数,<code>speed</code>方法会在分数属性的访问器中被调用,如果分数到达了一定的值,将会根据我们在<code>PageConfig</code>方法中时设置好的参数加快方块自动下落的速度</p>
+</li>
+<li><p>PageConfig<br>这个模块放的是游戏的一些配置数据,<code>SquareSize</code>,每个小方块的大小,<code>panelsize</code>,游戏面板的格子数,<code>nextSize</code>,预览区格子数,<code>speed</code>游戏分数对用的方块组下落周期</p>
+</li>
+<li><p>Types<br>这里定义了项目中所有的接口,枚举类型,和类型</p>
+</li>
+<li><p>util<br>这个模块用于产生一个随机数,这个随机数对用一个类型方块组,在<code>Teris.ts</code>中被调用</p>
+</li>
+<li><p>index<br>入口文件</p>
+</li>
+<li><p>其他<br>webpack 的配置和 tsconfig 的配置都是一些基本配置,就不讲了.</p>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以前习惯了 JS 的泛滥生长,想到哪写到哪,习惯于以过程去思考问题,通常有一些函数写的非常的庞大,虽然有时会刻意的去拆分一些函数,但是总是充满着随意性,没有一个明显的意图,除非某一段代码被重复写了很多遍,才会将其拿出去,真的很糟糕,但是 TS 这种面向对象编程的模式,确实让我耳目一新,虽然我以前接触过 java,甚至觉得这两怎么这么像,但毕竟用处不一样,这种面向对象的模式,将这个游戏自顶向下进行拆分,大类分为行为类和数据类,同时行为类又分为行为命令派发类和行为命令执行类,从整个游戏类到最基础的小方块类,这种拆分思维确实很值得学习,大大降低了代码的耦合度,可拓展性非常好.而且,而且,特别是<code>types.ts</code>这个文件,以前我们定标准一般是使用文档,但是这种属于弱标准,没有强制约束力,比如经典的<code>name</code>写成<code>nema</code>,别说你没写过哈,但是 TS 通过代码的形式去强制定义标准,强制我们去实现.这是很棒的.刚刚接触的时候,我一直在想,这玩意这么绕来绕去,花里胡哨,现在我是越来越喜欢这东西了.有点回不去的感觉了.</p>
+]]></content>
+      <tags>
+        <tag>webpack</tag>
+        <tag>TS</tag>
+        <tag>面向对象编程</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>简版的koa实现</title>
+    <url>/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/</url>
+    <content><![CDATA[<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>初学者刚接触 <code>nodejs</code> 的时候应该大部分都是使用 <code>koa</code> 去应对日常开发练习,但是,就有一个问题,如果过个半个月一个月不去整,我就会忘记怎么写,连入口文件都忘记了,思来想去,还是对<code>koa</code>这个东西不了解,停留在看文档写(抄)代码的阶段,所以,参照着<code>koa</code>的源码,动手写了一个简化的<code>koa</code>,源码在这<a href="https://github.com/Johnkun1314/nodeJS/tree/master/vkoa" target="_blank" rel="noopener">传送门</a></p>
+<a id="more"></a>
+
+<h2 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h2><p>我这里实现了<code>koa</code>基础功能,<code>static</code>静态文件服务,以及<code>router</code>插件</p>
+<ul>
+<li><p>先初始化项目<code>npm init -y</code></p>
+</li>
+<li><p>新建<code>Vkoa</code>文件夹,<code>index.js</code>以及<code>public</code>文件夹</p>
+</li>
+<li><p>index.js 入口文件,和使用<code>koa</code>无异</p>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> Vkoa = <span class="built_in">require</span>(<span class="string">'./Vkoa/index'</span>)</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Router = <span class="built_in">require</span>(<span class="string">'./Vkoa/router'</span>)</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">static</span> = <span class="built_in">require</span>(<span class="string">'./Vkoa/static'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = <span class="keyword">new</span> Vkoa()</span><br><span class="line"><span class="keyword">const</span> router = <span class="keyword">new</span> Router()</span><br><span class="line"></span><br><span class="line">app.use(<span class="keyword">static</span>(path.join(__dirname,<span class="string">'public'</span>)))</span><br><span class="line">app.use(router.routes())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.get(<span class="string">'/'</span>, <span class="keyword">async</span> (ctx,next) =&gt; &#123;</span><br><span class="line">    ctx.body = <span class="string">'router get'</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">router.post(<span class="string">'/public'</span>, <span class="keyword">async</span> (ctx) =&gt; &#123;</span><br><span class="line"></span><br><span class="line">    ctx.body = <span class="string">'router post'</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.listen(<span class="number">3000</span>, () =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'listen at 3000'</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Vkoa.js 文件,即 koa 的主体文件<br>这个<code>koa</code>的核心文件,我们平常使用的<code>use</code>,<code>listen</code>,<code>use</code>这个函数将使用<code>app.use()</code>注册的函数保存在<code>fnList</code>中,<code>listen</code>这个函数启动了一个<code>http</code>服务器,同时调用其他函数处理这个请求,<code>compose</code>是聚合函数,用于将我们注册的函数聚合,<code>createContext</code>用于将<code>request</code>和<code>response</code>绑定到<code>ctx</code>上面,同时提供一些常用属性如<code>url</code>,<code>method</code>的快捷读取.<br>这里的<code>compose</code>和<code>createContext</code>这两个方法特别是<code>compose</code>方法应该是比较迷的地方了.</li>
+</ul>
+<hr>
+<p><code>compose</code>函数,这个函数也是我们能实现<code>洋葱模型</code>的关键,<code>洋葱模型</code>可以理解为一系列函数层层嵌套执行,像我们写的:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">app.use(<span class="keyword">async</span>(ctx,next)=&gt;&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">1</span>)</span><br><span class="line">    next()</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">6</span>)</span><br><span class="line">&#125;)</span><br><span class="line">app.use(<span class="keyword">async</span>(ctx,next)=&gt;&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">2</span>)</span><br><span class="line">    next()</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">5</span>)</span><br><span class="line">&#125;)</span><br><span class="line">app.use(<span class="keyword">async</span>(ctx,next)=&gt;&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">3</span>)</span><br><span class="line">    next()</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="number">4</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的执行结果为:1,2,3,4,5,6<br>从外到内,再从内到外,每个 next 会等待下面的函数执行完后再执行下面的代码,这只是一个简单的例子,但是为什么调用<code>next</code>函数会往下执行呢?这就是<code>compose</code>这个函数的作用了.<br>我们可以看到,每调用一次<code>app.use()</code>,<code>use</code>函数会将传入的函数保存到一个数组中,然后让<code>compose</code>调用,<code>compose</code>返回一个匿名函数,这个匿名函数调用其自生声明的一个函数<code>toNext</code>,<code>toNext</code>函数以传入的下角标去获取对应的函数,即我们前面<code>app.use()</code>传入的函数,函数存在,就返回一个<code>Promise</code>,<code>resolve</code>的结果就是用下角标获取的函数的执行结果,里面的这个函数以<code>ctx</code>和一个函数,这个函数执行下一个<code>toNext</code>并且将下角标加一,这就是为什么我们在执行<code>next</code>后会执行下面的函数的原因,注意这里一定要返回一个<code>Promise</code>,后面会将原因.</p>
+<hr>
+<p><code>createContext</code>函数,这里的这个<code>Object.create()</code>方法我也是头一次将,可以理解为一个继承操作,新建一个对象并且继承子传入的参数,可以看到,我们创建一个<code>ctx</code>对象并且继承自<code>context</code>,<code>context</code>具体见下面,同时在其上新建<code>request</code>以及<code>response</code>属性,同时将真正的<code>request</code>和<code>response</code>绑定到<code>ctx.req</code>以及<code>ctx.res</code>上面.最后返回<code>ctx</code>,源码封装了更多快捷操作在<code>ctx</code>上面.</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Vkoa.js</span></span><br><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> context = <span class="built_in">require</span>(<span class="string">'./context'</span>)</span><br><span class="line"><span class="keyword">const</span> request = <span class="built_in">require</span>(<span class="string">'./request'</span>)</span><br><span class="line"><span class="keyword">const</span> response = <span class="built_in">require</span>(<span class="string">'./response'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vkoa</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>() &#123;</span><br><span class="line">        <span class="keyword">this</span>.fnList = []</span><br><span class="line">    &#125;</span><br><span class="line">    use(fn) &#123;</span><br><span class="line">        <span class="keyword">this</span>.fnList.push(fn)</span><br><span class="line">    &#125;</span><br><span class="line">    listen(port, fn) &#123;</span><br><span class="line">        <span class="keyword">const</span> server = http.createServer(<span class="keyword">async</span> (req, res) =&gt; &#123;</span><br><span class="line">            <span class="keyword">const</span> ctx = <span class="keyword">this</span>.createContext(req, res)</span><br><span class="line">            <span class="keyword">const</span> url = ctx.url</span><br><span class="line">            <span class="keyword">const</span> fn = <span class="keyword">this</span>.compose(<span class="keyword">this</span>.fnList)</span><br><span class="line">             fn(ctx)</span><br><span class="line"></span><br><span class="line">            res.end(ctx.body)</span><br><span class="line">        &#125;)</span><br><span class="line">        server.listen(port, fn)</span><br><span class="line">    &#125;</span><br><span class="line">    compose(fnList) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="function">(<span class="params">ctx</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> toNext(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">            <span class="function"><span class="keyword">function</span> <span class="title">toNext</span>(<span class="params">i</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">let</span> fn = fnList[i]</span><br><span class="line">                <span class="keyword">if</span> (!fn) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve()</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve(</span><br><span class="line">                    fn(ctx, () =&gt; &#123;</span><br><span class="line">                      <span class="keyword">return</span>  toNext(i + <span class="number">1</span>)</span><br><span class="line">                    &#125;)</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    createContext(req, res) &#123;</span><br><span class="line">        <span class="keyword">const</span> ctx = <span class="built_in">Object</span>.create(context)</span><br><span class="line">        ctx.request = <span class="built_in">Object</span>.create(request)</span><br><span class="line">        ctx.response = <span class="built_in">Object</span>.create(response)</span><br><span class="line">        ctx.req = ctx.request.req = req</span><br><span class="line">        ctx.res = ctx.response.res = res</span><br><span class="line">        <span class="keyword">return</span> ctx</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = Vkoa</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>request.js, response.js 以及 contenxt.js<br>这三个模块主要用于定义访问器实现属性的快捷操作,对访问器不懂得小伙伴,就记得这是一个属性拦截器就好了.</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// request.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    <span class="keyword">get</span> url()&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.req.url</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">get</span> method()&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.req.method.toLowerCase()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//response.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    <span class="keyword">get</span> body()&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._body</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">set</span> body(val)&#123;</span><br><span class="line">        <span class="keyword">this</span>._body = val</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//context.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    <span class="keyword">get</span> body() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.response.bpdy</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">set</span> body(val) &#123;</span><br><span class="line">        <span class="keyword">this</span>.response.bpdy = val</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">get</span> url() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.request.url</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="keyword">get</span> method() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.request.method</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>router 的实现<br>看,我们平时执行的<code>app.use(router.routes)</code>就是这么回事,返回了一个函数,我们所声明的<code>router.get()</code>,<code>router.post()</code>都被存到了一个数组里面,每次有新的请求到达时,就会去遍历这张表,找到<code>mehtod</code>和<code>url</code>符合的项,然后执行它.</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="class"><span class="keyword">class</span> <span class="title">Router</span> </span>&#123;</span><br><span class="line">    <span class="keyword">constructor</span>() &#123;</span><br><span class="line">        <span class="keyword">this</span>.list = []</span><br><span class="line">    &#125;</span><br><span class="line">    routes() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">            <span class="keyword">let</span> url = ctx.url</span><br><span class="line">            <span class="keyword">let</span> method = ctx.method</span><br><span class="line">            <span class="keyword">let</span> fn</span><br><span class="line">            <span class="keyword">this</span>.list.map(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (item.path === url &amp;&amp; item.method === method) &#123;</span><br><span class="line">                    <span class="comment">// find = true</span></span><br><span class="line">                    <span class="built_in">console</span>.log(<span class="string">'find'</span>)</span><br><span class="line">                    fn = item.fn</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            <span class="keyword">if</span>(fn)&#123;</span><br><span class="line">                 <span class="keyword">await</span> fn(ctx,next)</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    regist(path, method, fn) &#123;</span><br><span class="line">        <span class="keyword">this</span>.list.push(&#123;</span><br><span class="line">            path,</span><br><span class="line">            method,</span><br><span class="line">            fn</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">get</span>(path, fn) &#123;</span><br><span class="line">        <span class="keyword">this</span>.regist(path, <span class="string">'get'</span>, fn)</span><br><span class="line">    &#125;</span><br><span class="line">    post(path, fn) &#123;</span><br><span class="line">        <span class="keyword">this</span>.regist(path, <span class="string">'post'</span>, fn)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>static 的实现<br>static 的实现比较简单,根据指定的<code>url</code>和自定义的静态文件路径去访问文件,注意一定到返回一个异步函数,因为文件读取时一个异步操作,你不使用 await,会直接过!</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> <span class="title">static</span>(<span class="params">path</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> &#123;</span><br><span class="line">            url,</span><br><span class="line">            method</span><br><span class="line">        &#125; = ctx</span><br><span class="line">        <span class="keyword">if</span>(url == <span class="string">'/'</span>)</span><br><span class="line">        url = <span class="string">'/index.html'</span></span><br><span class="line">        <span class="keyword">await</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve,reject</span>)=&gt;</span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.log(url)</span><br><span class="line">            fs.readFile(path + url, (err, data) =&gt; &#123;</span><br><span class="line">                <span class="built_in">console</span>.log(<span class="string">'static'</span>)</span><br><span class="line">                <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                    resolve(<span class="number">0</span>)</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    ctx.body = data</span><br><span class="line">                    resolve(<span class="number">1</span>)</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            &#125;)</span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个算是比较简单的版本,但是我也遇到了一些问题,就是前面那个<code>compose</code>函数一定要返回一个<code>Promise</code>的地方,我可能对<code>nodejs</code>的异步操作理解的太烂了,如果不返回一个<code>promise</code>,你在<code>listen</code>这个函数里面执行<code>compose</code>的返回结果的时候,使用<code>await</code>是没用的,那个地方如果不使用<code>await</code>,只要你使用<code>app.use()</code>注入的函数是一个异步函数,里面的任何异步操作,会被直接跳过,在里面使用<code>await</code>无效,如果你想在一个<code>get</code>请求里面读取文件,然后将文件读取结果返回,他会跳过这一步,我就郁闷,我注册的时候不声明异步函数,他也会直接跳过,en,又遇到问题了,等我想明白再更新!我觉得我应该不会忘记koa入口文件怎么写了!<br>还有那个<code>static</code>和<code>router</code>之间不是<code>洋葱模型</code>,即如果你把<code>app.use(staitc())</code>写在<code>app.use(router.routes())</code>前面的时候,不会执行到路由里面去,反之亦然!</p>
+]]></content>
+      <tags>
+        <tag>koa</tag>
+        <tag>nodejs</tag>
       </tags>
   </entry>
 </search>
