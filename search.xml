@@ -68,6 +68,9 @@
     <title>helloworld</title>
     <url>/2019/12/30/helloworld/</url>
     <content><![CDATA[<h3 id="This-is-my-first-day-Hello-The-world-Hello-Everything"><a href="#This-is-my-first-day-Hello-The-world-Hello-Everything" class="headerlink" title="This is my first day! Hello!The world! Hello!Everything!"></a>This is my first day! Hello!The world! Hello!Everything!</h3>]]></content>
+      <tags>
+        <tag>hello</tag>
+      </tags>
   </entry>
   <entry>
     <title>nuxt项目部署的心得</title>
