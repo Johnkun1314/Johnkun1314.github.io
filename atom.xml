@@ -79,11 +79,11 @@
     
     
     
-      <category term="webpack" scheme="http://yoursite.com/tags/webpack/"/>
-    
       <category term="TS" scheme="http://yoursite.com/tags/TS/"/>
     
       <category term="面向对象编程" scheme="http://yoursite.com/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B/"/>
+    
+      <category term="webpack" scheme="http://yoursite.com/tags/webpack/"/>
     
   </entry>
   
@@ -129,11 +129,11 @@
     
     
     
+      <category term="webpack" scheme="http://yoursite.com/tags/webpack/"/>
+    
       <category term="vue" scheme="http://yoursite.com/tags/vue/"/>
     
       <category term="svg" scheme="http://yoursite.com/tags/svg/"/>
-    
-      <category term="webpack" scheme="http://yoursite.com/tags/webpack/"/>
     
   </entry>
   
