@@ -46,27 +46,34 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Dear John">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="入口文件以及原型初始化在vue源码文件中,我们找到带编译器的版本entry-runtime-with-complie.js,找到其中的Vue字眼如下: 123456789const mount &#x3D; Vue.prototype.$mountVue.prototype.$mount &#x3D; function (  el?: string | Element,  hydrating?: boolean):">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue源码日记(1)-原型初始化">
+<meta property="og:url" content="http://yoursite.com/2020/06/22/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-1-%E5%8E%9F%E5%9E%8B%E5%88%9D%E5%A7%8B%E5%8C%96/index.html">
 <meta property="og:site_name" content="Dear John">
+<meta property="og:description" content="入口文件以及原型初始化在vue源码文件中,我们找到带编译器的版本entry-runtime-with-complie.js,找到其中的Vue字眼如下: 123456789const mount &#x3D; Vue.prototype.$mountVue.prototype.$mount &#x3D; function (  el?: string | Element,  hydrating?: boolean):">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-06-22T05:29:42.000Z">
+<meta property="article:modified_time" content="2020-06-22T07:00:01.694Z">
 <meta property="article:author" content="John">
+<meta property="article:tag" content="vue">
+<meta property="article:tag" content="源码">
+<meta property="article:tag" content="原型初始化">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://yoursite.com/">
+<link rel="canonical" href="http://yoursite.com/2020/06/22/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-1-%E5%8E%9F%E5%9E%8B%E5%88%9D%E5%A7%8B%E5%8C%96/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false
+    isHome: false,
+    isPost: true
   };
 </script>
 
-  <title>Dear John</title>
+  <title>Vue源码日记(1)-原型初始化 | Dear John</title>
   
 
 
@@ -187,10 +194,10 @@
             
 
   <div class="posts-expand">
-        
+      
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/22/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-1-%E5%8E%9F%E5%9E%8B%E5%88%9D%E5%A7%8B%E5%8C%96/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -204,8 +211,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/22/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-1-%E5%8E%9F%E5%9E%8B%E5%88%9D%E5%A7%8B%E5%8C%96/" class="post-title-link" itemprop="url">Vue源码日记(1)-原型初始化</a>
+          Vue源码日记(1)-原型初始化
         </h1>
 
         <div class="post-meta">
@@ -220,6 +226,13 @@
             </span>
 
           
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
   
   <span class="post-meta-item">
     
@@ -244,7 +257,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <a id="more"></a>
+        <a id="more"></a>
 <h2 id="入口文件以及原型初始化"><a href="#入口文件以及原型初始化" class="headerlink" title="入口文件以及原型初始化"></a>入口文件以及原型初始化</h2><p>在vue源码文件中,我们找到带编译器的版本<code>entry-runtime-with-complie.js</code>,找到其中的Vue字眼如下:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> mount = Vue.prototype.$mount</span><br><span class="line">Vue.prototype.$mount = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  el?: string | Element,</span></span></span><br><span class="line"><span class="function"><span class="params">  hydrating?: boolean</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Component</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">     <span class="keyword">return</span> mount.call(<span class="keyword">this</span>, el, hydrating)</span><br><span class="line">&#125;</span><br><span class="line">Vue.compile = compileToFunctions</span><br></pre></td></tr></table></figure>
 <p>这个文件给Vue的原型上面挂载了<code>$mount</code>方法和<code>complie</code>方法,第一个方法大家可能没用过,但是在Vue项目的入口文件是见过的,第二个是暴露给开发者的编译函数,根据:</p>
@@ -316,773 +329,32 @@ Vue.prototype._g = bindObjectListeners
 Vue.prototype._d = bindDynamicKeys
 Vue.prototype._p = prependModifier</code></pre>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/vue/" rel="tag"># vue</a>
+              <a href="/tags/%E6%BA%90%E7%A0%81/" rel="tag"># 源码</a>
+              <a href="/tags/%E5%8E%9F%E5%9E%8B%E5%88%9D%E5%A7%8B%E5%8C%96/" rel="tag"># 原型初始化</a>
+          </div>
 
         
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">简版的koa实现</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-05-21 14:49:20 / Modified: 20:42:41" itemprop="dateCreated datePublished" datetime="2020-05-21T14:49:20+08:00">2020-05-21</time>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>初学者刚接触 <code>nodejs</code> 的时候应该大部分都是使用 <code>koa</code> 去应对日常开发练习,但是,就有一个问题,如果过个半个月一个月不去整,我就会忘记怎么写,连入口文件都忘记了,思来想去,还是对<code>koa</code>这个东西不了解,停留在看文档写(抄)代码的阶段,所以,参照着<code>koa</code>的源码,动手写了一个简化的<code>koa</code>,源码在这<a href="https://github.com/Johnkun1314/nodeJS/tree/master/vkoa" target="_blank" rel="noopener">传送门</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/21/%E7%AE%80%E7%89%88%E7%9A%84koa%E5%AE%9E%E7%8E%B0/" rel="prev" title="简版的koa实现">
+      <i class="fa fa-chevron-left"></i> 简版的koa实现
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/19/vue%E4%B8%AD%E7%9A%84%E8%99%9A%E6%8B%9Fdom/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/19/vue%E4%B8%AD%E7%9A%84%E8%99%9A%E6%8B%9Fdom/" class="post-title-link" itemprop="url">'vue中的虚拟dom'</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-05-19 12:38:22 / Modified: 14:31:02" itemprop="dateCreated datePublished" datetime="2020-05-19T12:38:22+08:00">2020-05-19</time>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
     
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/05/19/vue%E4%B8%AD%E7%9A%84%E8%99%9A%E6%8B%9Fdom/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/19/vue%E4%B8%AD%E7%9A%84%E8%99%9A%E6%8B%9Fdom/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>vue 有几个重要的点,前面我们学过了数据双向绑定(<a href="https://b.wellkun.com/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/#more" target="_blank" rel="noopener">传送门</a>,),还有一个重要的点就是虚拟 dom 了.</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/19/vue%E4%B8%AD%E7%9A%84%E8%99%9A%E6%8B%9Fdom/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/" class="post-title-link" itemprop="url">'TS制作俄罗斯方块'</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-05-14 22:53:36" itemprop="dateCreated datePublished" datetime="2020-05-14T22:53:36+08:00">2020-05-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-15 20:35:04" itemprop="dateModified" datetime="2020-05-15T20:35:04+08:00">2020-05-15</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="任务描述"><a href="#任务描述" class="headerlink" title="任务描述"></a>任务描述</h2><p>刚刚开始学 TS,边学边做,制作成了第一个 TS 小 Demo 俄罗斯方块,已经挂在<a href="https://github.com/Johnkun1314/TS-Teris" target="_blank" rel="noopener">我的 gitHub</a>上了</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/14/TS%E5%88%B6%E4%BD%9C%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/08/%E8%85%BE%E8%AE%AF%E4%BA%91%E4%BA%91%E5%87%BD%E6%95%B0%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/08/%E8%85%BE%E8%AE%AF%E4%BA%91%E4%BA%91%E5%87%BD%E6%95%B0%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87/" class="post-title-link" itemprop="url">'腾讯云云函数上传图片'</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-05-08 16:50:46" itemprop="dateCreated datePublished" datetime="2020-05-08T16:50:46+08:00">2020-05-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-14 22:54:04" itemprop="dateModified" datetime="2020-05-14T22:54:04+08:00">2020-05-14</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/05/08/%E8%85%BE%E8%AE%AF%E4%BA%91%E4%BA%91%E5%87%BD%E6%95%B0%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/08/%E8%85%BE%E8%AE%AF%E4%BA%91%E4%BA%91%E5%87%BD%E6%95%B0%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>我们在使用腾讯云云开发开发 vue 项目的时候,时避免不了上传图片的,但是,我们又不能直接使用云开发的接口<code>uploadFile</code>,直接在本地使用这个接口会被拒绝访问,将被判定为跨域,只有被添加到安全域名的服务器线上版本才能够正常的使用,所以我们还是要使用云函数.不仅仅时为了现在开发,还有以后的维护.</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/08/%E8%85%BE%E8%AE%AF%E4%BA%91%E4%BA%91%E5%87%BD%E6%95%B0%E4%B8%8A%E4%BC%A0%E5%9B%BE%E7%89%87/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/05/05/vue%E4%BC%98%E9%9B%85%E7%9A%84%E4%BD%BF%E7%94%A8svg/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/05/05/vue%E4%BC%98%E9%9B%85%E7%9A%84%E4%BD%BF%E7%94%A8svg/" class="post-title-link" itemprop="url">'vue优雅的使用svg'</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-05-05 13:35:50" itemprop="dateCreated datePublished" datetime="2020-05-05T13:35:50+08:00">2020-05-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-06 20:10:33" itemprop="dateModified" datetime="2020-05-06T20:10:33+08:00">2020-05-06</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/05/05/vue%E4%BC%98%E9%9B%85%E7%9A%84%E4%BD%BF%E7%94%A8svg/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/05/vue%E4%BC%98%E9%9B%85%E7%9A%84%E4%BD%BF%E7%94%A8svg/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>我们在写 vue 项目的时候,使用 svg 图片是不可少的,但是,常规的使用我们每次需要使用的时候,就必须在对应的地方导入一下,然后写上两层标签去使用它,一点都不直观,而且 每次的导入操作都非常的繁琐,所以,我们能不能像使用全局组件一样去使用一个 svg 呢,答案是肯定的!</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/05/05/vue%E4%BC%98%E9%9B%85%E7%9A%84%E4%BD%BF%E7%94%A8svg/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/21/Vuex%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/21/Vuex%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">'Vuex简单实现'</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-21 18:13:16 / Modified: 18:50:17" itemprop="dateCreated datePublished" datetime="2020-04-21T18:13:16+08:00">2020-04-21</time>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/04/21/Vuex%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/21/Vuex%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>插件通常用来为<code>Vue</code>添加全局功能,插件的添加有以下几种</p>
-<ol>
-<li><p>添加全局方法或者属性。如：vue-custom-element</p>
-</li>
-<li><p>添加全局资源：指令/过滤器/过渡等。如 vue-touch</p>
-</li>
-<li><p>通过全局混入来添加一些组件选项。如 vue-router</p>
-</li>
-<li><p>添加 Vue 实例方法，通过把它们添加到 Vue.prototype 上实现。</p>
-</li>
-<li><p>一个库，提供自己的 API，同时提供上面提到的一个或多个功能。如 vue-router</p>
-</li>
-</ol>
-<p>我们今天实现的就是实现一个简单的<code>Vuex</code>插件,这款插件相信大家在日常<code>vue</code>开发中使用的比较多了</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/21/Vuex%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/20/vue%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E9%AA%8C%E8%AF%81%E8%A1%A8%E5%8D%95%E7%BB%84%E4%BB%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/20/vue%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E9%AA%8C%E8%AF%81%E8%A1%A8%E5%8D%95%E7%BB%84%E4%BB%B6/" class="post-title-link" itemprop="url">vue实现登陆验证表单组件</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-20 18:03:16 / Modified: 20:40:03" itemprop="dateCreated datePublished" datetime="2020-04-20T18:03:16+08:00">2020-04-20</time>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/04/20/vue%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E9%AA%8C%E8%AF%81%E8%A1%A8%E5%8D%95%E7%BB%84%E4%BB%B6/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/20/vue%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E9%AA%8C%E8%AF%81%E8%A1%A8%E5%8D%95%E7%BB%84%E4%BB%B6/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="问题叙述"><a href="#问题叙述" class="headerlink" title="问题叙述"></a>问题叙述</h1><p>现在得开发大都会去使用一些 UI 库如<code>Elelemt-UI</code>、<code>Ant Design</code>或者<code>Cube-UI</code>等一些解决方案,但是往往这些库只是提供一些通用化的组件,如果我们需要定制开发,那么自定义组件是必不可少的,所以,我这里实现了一套简化的<code>Element-UI</code>的<code>Form</code>表单组件,具体使用和<code>Element-UI</code>一样.</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/20/vue%E5%AE%9E%E7%8E%B0%E7%99%BB%E9%99%86%E9%AA%8C%E8%AF%81%E8%A1%A8%E5%8D%95%E7%BB%84%E4%BB%B6/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/13/node%E4%BD%BF%E7%94%A8%E8%8A%82%E6%B5%81%E7%9A%84%E6%96%B9%E5%BC%8F%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%99%E5%85%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/13/node%E4%BD%BF%E7%94%A8%E8%8A%82%E6%B5%81%E7%9A%84%E6%96%B9%E5%BC%8F%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%99%E5%85%A5/" class="post-title-link" itemprop="url">node使用节流的思维处理文件的写入</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2020-04-13 14:29:40 / Modified: 15:11:52" itemprop="dateCreated datePublished" datetime="2020-04-13T14:29:40+08:00">2020-04-13</time>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/04/13/node%E4%BD%BF%E7%94%A8%E8%8A%82%E6%B5%81%E7%9A%84%E6%96%B9%E5%BC%8F%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%99%E5%85%A5/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/13/node%E4%BD%BF%E7%94%A8%E8%8A%82%E6%B5%81%E7%9A%84%E6%96%B9%E5%BC%8F%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%99%E5%85%A5/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="node-使用节流的思维处理文件的写入"><a href="#node-使用节流的思维处理文件的写入" class="headerlink" title="node 使用节流的思维处理文件的写入"></a>node 使用节流的思维处理文件的写入</h1><ul>
-<li><p>问题<br>我们在写博客使用网图或者开发使用网图的时候，可能出现了图片未授权被拦截的情况，所以我就搭建了一个自己的图片存储服务,开始的时候不考虑使用数据库，直接使用一个 JSON 文件去存储文件的相关信息，但是这样操作带来了一个问题:<strong>如果我一次性上传多张图片,由于 nodejs 的异步处理,导致后来的图片读取的 JSON 文件是为更改的图片,最后导致只能写入一条信息.</strong></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/13/node%E4%BD%BF%E7%94%A8%E8%8A%82%E6%B5%81%E7%9A%84%E6%96%B9%E5%BC%8F%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6%E7%9A%84%E5%86%99%E5%85%A5/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="John">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dear John">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/" class="post-title-link" itemprop="url">vue双向绑定原理及实现</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2020-04-09 17:07:04" itemprop="dateCreated datePublished" datetime="2020-04-09T17:07:04+08:00">2020-04-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-05-19 14:25:41" itemprop="dateModified" datetime="2020-05-19T14:25:41+08:00">2020-05-19</time>
-              </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="vue-数据双向绑定的原理以及实现"><a href="#vue-数据双向绑定的原理以及实现" class="headerlink" title="vue 数据双向绑定的原理以及实现"></a>vue 数据双向绑定的原理以及实现</h1><p><strong>vue</strong>数据双向绑定是我学习 vue 底层原理的第一个知识点,之前直接去看<strong>vue</strong>的源码,直接看得二脸懵逼,所以还是将其分解开来一部分一部分的去学习,第一部分就是<strong>vue</strong>最基础的双向数据绑定,<a href="https://github.com/Johnkun1314/bindDataAndVDom/tree/master/bindData" target="_blank" rel="noopener">源码传送门</a></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/04/09/vue%E5%8F%8C%E5%90%91%E7%BB%91%E5%AE%9A%E5%8E%9F%E7%90%86%E5%8F%8A%E5%AE%9E%E7%8E%B0/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
   </article>
   
   
@@ -1090,15 +362,10 @@ Vue.prototype._p = prependModifier</code></pre>
 
   </div>
 
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
-  </nav>
-
-
 
           </div>
           
+    <div class="comments" id="valine-comments"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -1145,6 +412,7 @@ Vue.prototype._p = prependModifier</code></pre>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#入口文件以及原型初始化"><span class="nav-number">1.</span> <span class="nav-text">入口文件以及原型初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
