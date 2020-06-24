@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Muse',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="一个简单实例的初始化我们以一个简单的Vue实例为例:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue源码日记(2)-实例初始化(1)">
+<meta property="og:url" content="http://yoursite.com/2020/06/23/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-2-%E5%AE%9E%E4%BE%8B%E5%88%9D%E5%A7%8B%E5%8C%96(1)/index.html">
+<meta property="og:site_name" content="Dear John">
+<meta property="og:description" content="一个简单实例的初始化我们以一个简单的Vue实例为例:">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-06-23T04:56:13.000Z">
+<meta property="article:modified_time" content="2020-06-24T07:05:28.483Z">
+<meta property="article:author" content="John">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/06/23/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-2-%E5%AE%9E%E4%BE%8B%E5%88%9D%E5%A7%8B%E5%8C%96(1)/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Vue源码日记(2)-实例初始化(1) | Dear John</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Dear John" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Dear John</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="Searching..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/23/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-2-%E5%AE%9E%E4%BE%8B%E5%88%9D%E5%A7%8B%E5%8C%96(1)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="John">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dear John">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Vue源码日记(2)-实例初始化(1)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-06-23 12:56:13" itemprop="dateCreated datePublished" datetime="2020-06-23T12:56:13+08:00">2020-06-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-06-24 15:05:28" itemprop="dateModified" datetime="2020-06-24T15:05:28+08:00">2020-06-24</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2020/06/23/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-2-%E5%AE%9E%E4%BE%8B%E5%88%9D%E5%A7%8B%E5%8C%96(1)/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/06/23/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-2-%E5%AE%9E%E4%BE%8B%E5%88%9D%E5%A7%8B%E5%8C%96(1)/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一个简单实例的初始化"><a href="#一个简单实例的初始化" class="headerlink" title="一个简单实例的初始化"></a>一个简单实例的初始化</h2><p>我们以一个简单的Vue实例为例:</p>
+<a id="more"></a>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> app = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">    data:&#123;</span><br><span class="line">         age:<span class="number">12</span>,</span><br><span class="line">         name:&#123;</span><br><span class="line">             first:<span class="string">'wang'</span>,</span><br><span class="line">             last:<span class="string">'john'</span></span><br><span class="line">         &#125;,</span><br><span class="line">         friend:[<span class="string">'davin'</span>,<span class="string">'erien'</span>]</span><br><span class="line">     &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>我们找到Vue构造函数所在文件<code>src/core/instance/index.js</code>:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Vue</span>(<span class="params">options</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp;</span><br><span class="line">    !(<span class="keyword">this</span> <span class="keyword">instanceof</span> Vue)</span><br><span class="line">  ) &#123;</span><br><span class="line">    warn(<span class="string">'Vue is a constructor and should be called with the `new` keyword'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>._init(options)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先会判断是否是通过new 的形式调用的Vue构造函数,不是则会打印警告信息,同时调用<code>this._init()</code>初始化vue实例,这个函数实在<code>initMixin</code>里面挂载的,我们找到对应的文件:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Vue.prototype._init = <span class="function"><span class="keyword">function</span> (<span class="params">options?: Object</span>) </span>&#123;</span><br><span class="line"> <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">    <span class="comment">// a uid</span></span><br><span class="line">    vm._uid = uid++</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先将this赋给vm,然后在vm上新建一个uid,这个uid在该模块的上面初始化过的为0,这个uid是vue实例的唯一标识.下面是如下代码:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> startTag, endTag</span><br><span class="line">    <span class="comment">/* istanbul ignore if */</span></span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; config.performance &amp;&amp; mark) &#123;</span><br><span class="line">      startTag = <span class="string">`vue-perf-start:<span class="subst">$&#123;vm._uid&#125;</span>`</span></span><br><span class="line">      endTag = <span class="string">`vue-perf-end:<span class="subst">$&#123;vm._uid&#125;</span>`</span></span><br><span class="line">      mark(startTag)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 中间代码省略</span></span><br><span class="line">    <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; config.performance &amp;&amp; mark) &#123;</span><br><span class="line">      vm._name = formatComponentName(vm, <span class="literal">false</span>)</span><br><span class="line">      mark(endTag)</span><br><span class="line">      measure(<span class="string">`vue <span class="subst">$&#123;vm._name&#125;</span> init`</span>, startTag, endTag)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以看到这个函数中有两端这样的代码,这个段代码的作用是用来做性能统计的,有兴趣的可以去看看!接下来是这段:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a flag to avoid this being observed</span></span><br><span class="line">vm._isVue = <span class="literal">true</span></span><br><span class="line"><span class="comment">// merge options</span></span><br><span class="line"><span class="keyword">if</span> (options &amp;&amp; options._isComponent) &#123;</span><br><span class="line">  <span class="comment">// optimize internal component instantiation</span></span><br><span class="line">  <span class="comment">// since dynamic options merging is pretty slow, and none of the</span></span><br><span class="line">  <span class="comment">// internal component options needs special treatment.</span></span><br><span class="line">  initInternalComponent(vm, options)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  vm.$options = mergeOptions(</span><br><span class="line">    resolveConstructorOptions(vm.constructor),</span><br><span class="line">    options || &#123;&#125;,</span><br><span class="line">    vm</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先将该对象表示为一个Vue实例,注释也写了,防止被观察,后面碰到在讲,接下来判断实例是否一个组件,我们这里不是,所以会走else,else分支里面执行了<code>mergeOptions</code>函数并将结果放回给<code>vm.$options</code>,这个函数的第一个参数是一个函数<code>resolveConstructorOptions</code>,参数是<code>vm.constructor</code>,我们找到该函数体:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> options = Ctor.options</span><br><span class="line"> <span class="keyword">if</span> (Ctor.super) &#123;</span><br><span class="line">   <span class="keyword">const</span> superOptions = resolveConstructorOptions(Ctor.super)</span><br><span class="line">   <span class="keyword">const</span> cachedSuperOptions = Ctor.superOptions</span><br><span class="line">   <span class="keyword">if</span> (superOptions !== cachedSuperOptions) &#123;</span><br><span class="line">       <span class="comment">// 省略</span></span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>先看前面,首先获取构造函数上面的<code>options</code>,然后利用<code>Ctor.super</code>判断是不是原始Vue构造函数,<code>Ctor</code>是我们传进来的参数<code>vm.constructor</code>,这个函数是用于合并其祖辈的options的,因为vue提供了<code>extend</code>这个选项让我们构造新的Vue实例,所以我们要将其祖辈所有的<code>options</code>合并后返回,如果没有使用<code>extend</code>,则直接返回原型的<code>options</code>,回到上一个函数<code>mergeOptions</code>:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vm.$options = mergeOptions(</span><br><span class="line">        resolveConstructorOptions(vm.constructor),</span><br><span class="line">        options || &#123;&#125;,</span><br><span class="line">        vm</span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+<p>我们找到这个函数,在目录<code>src/core/util/options.js</code>:\</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">mergeOptions</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  parent: Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  child: Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  vm?: Component</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Object</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这是其函数签名,接着往下看:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">  checkComponents(child)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先调用了<code>checkComponent(child)</code>,我们找到这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">function</span> <span class="title">checkComponents</span> (<span class="params">options: Object</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> options.components) &#123;</span><br><span class="line">    validateComponentName(key)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数遍历了<code>options</code>的<code>components</code>选项,并调用<code>vlidateComponentName</code>去校验其组件名,我们找到这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">validateComponentName</span> (<span class="params">name: string</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">`^[a-zA-Z][\\-\\.0-9_<span class="subst">$&#123;unicodeRegExp.source&#125;</span>]*$`</span>).test(name)) &#123;</span><br><span class="line">    warn(</span><br><span class="line">      <span class="string">'Invalid component name: "'</span> + name + <span class="string">'". Component names '</span> +</span><br><span class="line">      <span class="string">'should conform to valid custom element name in html5 specification.'</span></span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (isBuiltInTag(name) || config.isReservedTag(name)) &#123;</span><br><span class="line">    warn(</span><br><span class="line">      <span class="string">'Do not use built-in or reserved HTML elements as component '</span> +</span><br><span class="line">      <span class="string">'id: '</span> + name</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先使用一个正则去校验组件名,判断其是否H5规范,即以普通字符和-组成并且以祖母开头,然后判断其是否使用了vue内置的标签如<code>slot</code>,<code>component</code>,或者是html保留标签,即我们用的如<code>div</code>这类,并给出相应的提示,回到<code>mergeOptions</code>接下来是这段:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> child === <span class="string">'function'</span>) &#123;</span><br><span class="line">  child = child.options</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这说明 child 参数除了是普通的选项对象外，还可以是一个函数，如果是函数的话就取该函数的 options 静态属性作为新的 child，我们想一想什么样的函数具有 options 静态属性呢？现在我们知道 Vue 构造函数本身就拥有这个属性，其实通过 Vue.extend 创造出来的子类也是拥有这个属性的。所以这就允许我们在进行选项合并的时候，去合并一个 Vue 实例构造者的选项了(?)下面是这三个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">normalizeProps(child, vm)</span><br><span class="line">normalizeInject(child, vm)</span><br><span class="line">normalizeDirectives(child)</span><br></pre></td></tr></table></figure>
+<p>我们先找到<code>normalizeProps()</code>,这是其签名:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">normalizeProps</span> (<span class="params">options: Object, vm: ?Component</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>()&#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>()&#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>()&#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">    options.props = res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着往下看:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> props = options.props</span><br><span class="line"><span class="keyword">if</span> (!props) <span class="keyword">return</span></span><br><span class="line"><span class="keyword">const</span> res = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> i, val, name</span><br></pre></td></tr></table></figure>
+<p>首先判断<code>props</code>是否存在,不存在则直接返回,然后新建几个变量,接着往下看第一个if分支:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(props)) &#123;</span><br><span class="line">  i = props.length</span><br><span class="line">  <span class="keyword">while</span> (i--) &#123;</span><br><span class="line">    val = props[i]</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> val === <span class="string">'string'</span>) &#123;</span><br><span class="line">      name = camelize(val)</span><br><span class="line">      res[name] = &#123; <span class="attr">type</span>: <span class="literal">null</span> &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">      warn(<span class="string">'props must be strings when using array syntax.'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先判断<code>props</code>是否是一个数组,然后遍历这个数组,并判断每一项是不是字符串,并给出警告,同时将每一项使用<code>camelize</code>函数转换为驼峰命名,经过抓换后的props将变成如下形式:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原props</span></span><br><span class="line">props:[<span class="string">'age'</span>,<span class="string">'name'</span>]</span><br><span class="line"><span class="comment">// 转换后</span></span><br><span class="line">&#123;</span><br><span class="line">    age:&#123;<span class="attr">type</span>:<span class="literal">null</span>&#125;,</span><br><span class="line">    name:&#123;<span class="attr">type</span>:<span class="literal">null</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来看第二分支:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (isPlainObject(props)) &#123;</span><br><span class="line">   <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> props) &#123;</span><br><span class="line">     val = props[key]</span><br><span class="line">     name = camelize(key)</span><br><span class="line">     res[name] = isPlainObject(val)</span><br><span class="line">       ? val</span><br><span class="line">       : &#123; <span class="attr">type</span>: val &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>首先使用<code>isPlainObject</code>判断props是否是是个纯对象,我们可以看看<code>isPlainObject</code>,后面会经常用到这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">isPlainObject</span> (<span class="params">obj: any</span>): <span class="title">boolean</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> _toString.call(obj) === <span class="string">'[object Object]'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数通过调用<code>Object.prototype.toString</code>方法去判断该函数是否是对象,这个方法可以判断当前所有的数据类型,我们回到原函数.<br>这个分支接着遍历<code>props</code>对象,调用<code>camelize</code>函数将属性名转换为驼峰命名,接着是一个三木运算符,判断值是否是一个对象,举个例子:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原props</span></span><br><span class="line">props:&#123;</span><br><span class="line">    age:<span class="built_in">Number</span>,</span><br><span class="line">    name:&#123;<span class="attr">type</span>:<span class="built_in">String</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 抓换后</span></span><br><span class="line">props:&#123;</span><br><span class="line">    age:&#123;<span class="attr">type</span>:<span class="built_in">Number</span>&#125;,</span><br><span class="line">    name:&#123;<span class="attr">type</span>:<span class="built_in">String</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着是最后一个分支:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">    warn(</span><br><span class="line">      <span class="string">`Invalid value for option "props": expected an Array or an Object, `</span> +</span><br><span class="line">      <span class="string">`but got <span class="subst">$&#123;toRawType(props)&#125;</span>.`</span>,</span><br><span class="line">      vm</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p> 到了这个分支则说明props既不是对象也不是数组,即不符合规范,如果在开发环境下,则给出相应的警告!最后更新props!<br> 我们回到<code>mergeOptions</code>,下一个执行的是<code>normalizeInject</code>,找到其函数:<br> <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">normalizeInject</span> (<span class="params">options: Object, vm: ?Component</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>()&#123;</span><br><span class="line">       <span class="comment">//  省略</span></span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>()&#123;</span><br><span class="line">       <span class="comment">//  省略</span></span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>()&#123;</span><br><span class="line">       <span class="comment">//  省略</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>这是其函数签名,我们先看前三行:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> inject = options.inject</span><br><span class="line"><span class="keyword">if</span> (!inject) <span class="keyword">return</span></span><br><span class="line"><span class="keyword">const</span> normalized = options.inject = &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>没有inejct则直接结束函数,备份原inject,同时将原inject置为空对象,接下来看第一个分支:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(inject)) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; inject.length; i++) &#123;</span><br><span class="line">      normalized[inject[i]] = &#123; <span class="attr">from</span>: inject[i] &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>如果<code>inject</code>是数组,则进入这个分支,然后循环遍历数组转换格式,看个示例:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 原inject</span></span><br><span class="line">inject:[<span class="string">'age'</span>,<span class="string">'name'</span>]</span><br><span class="line"><span class="comment">//转换后</span></span><br><span class="line">inject:&#123;</span><br><span class="line">    age:&#123;<span class="attr">from</span>:<span class="string">'age'</span>&#125;,</span><br><span class="line">    name:&#123;<span class="attr">from</span>:<span class="string">'age'</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个分支里面用到了一个新的函数<code>extend</code>,我们找到这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">extend</span> (<span class="params">to: Object, _from: ?Object</span>): <span class="title">Object</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> _from) &#123;</span><br><span class="line">    to[key] = _from[key]</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> to</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数就是将第二个参数上属性拷贝一份到第一个参数上面,这个函数后面也会多次用到<br>接下来是第三个分支:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">   warn(</span><br><span class="line">     <span class="string">`Invalid value for option "inject": expected an Array or an Object, `</span> +</span><br><span class="line">     <span class="string">`but got <span class="subst">$&#123;toRawType(inject)&#125;</span>.`</span>,</span><br><span class="line">     vm</span><br><span class="line">   )</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>进入这个分支说明<code>inject</code>既不是数组也不是对象,则给出相应的警告.<br>我们回到<code>mergeOptions</code>函数,接下来调用的是<code>normalizeDirectives</code>,我们找到这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">normalizeDirectives</span> (<span class="params">options: Object</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> dirs = options.directives</span><br><span class="line">  <span class="keyword">if</span> (dirs) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> dirs) &#123;</span><br><span class="line">      <span class="keyword">const</span> def = dirs[key]</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> def === <span class="string">'function'</span>) &#123;</span><br><span class="line">        dirs[key] = &#123; <span class="attr">bind</span>: def, <span class="attr">update</span>: def &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同时遍历<code>options.directives</code>,并且给这些指令函数的触发和<code>bind</code>和<code>update</code>行为相绑定!,回到<code>mergeOptions</code>,下面是这一段代码:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">if</span> (!child._base) &#123;</span><br><span class="line">    <span class="keyword">if</span> (child.extends) &#123;</span><br><span class="line">      parent = mergeOptions(parent, child.extends, vm)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (child.mixins) &#123;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>, l = child.mixins.length; i &lt; l; i++) &#123;</span><br><span class="line">        parent = mergeOptions(parent, child.mixins[i], vm)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个<code>_base</code>是不是前面没讲过,通过全局搜索发现这个<code>_base</code>在全局api初始化那个文件被赋值过,即:</p>
+<blockquote>
+<p>Vue.options._base = Vue<br>通过打印对应的实例结果发现其确实是Vue原型构造函数,我们接着往下看,下面判断<code>child.extends</code>和<code>child.mixins</code>是否存在,存在则递归调用自身,那么这个<code>_base</code>到底是怎么回事呢,首先,这是属性是<code>Vue</code>原型上面<code>options</code>上面的属性,而我们这个函数要做的,就是将祖辈的options进行合并,在合并结束后,Vue实例的<code>options</code>上面也就有了<code>_base</code>这个属性了,通过添加这个属性,防止<code>extend</code>和<code>mixnis</code>的重复合并.即如果继承的或者需要混入的组件或者实例是已经实例化的,就不需要再次合并了.接着往下看:</p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> options = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> key</span><br><span class="line"><span class="keyword">for</span> (key <span class="keyword">in</span> parent) &#123;</span><br><span class="line">  mergeField(key)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span> (key <span class="keyword">in</span> child) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!hasOwn(parent, key)) &#123;</span><br><span class="line">    mergeField(key)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mergeField</span> (<span class="params">key</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> strat = strats[key] || defaultStrat</span><br><span class="line">  options[key] = strat(parent[key], child[key], vm, key)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> options</span><br></pre></td></tr></table></figure>
+<p>首先新建一个options对象,然后循环<code>parent</code>对象,即已经被合并过的祖辈所有的<code>options</code>,然后调用<code>mergeField</code>,我们看一下这个函数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mergeField</span> (<span class="params">key</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> strat = strats[key] || defaultStrat</span><br><span class="line">  options[key] = strat(parent[key], child[key], vm, key)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个<code>strat</code>值是怎么样的嗯啊,我们先找到<code>stracts</code>这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> strats = config.optionMergeStrategies</span><br></pre></td></tr></table></figure>
+<p>再找到<code>config.optionMergeStrategies</code>:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">      optionMergeStrategies: <span class="built_in">Object</span>.create(<span class="literal">null</span>),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到默认是一个空对象,我们返回原函数所在文件,我们发现这个文件在<code>strats</code>上面挂载了其他属性:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">strats.data = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="comment">//...&#125;</span></span><br><span class="line"></span><br><span class="line">LIFECYCLE_HOOKS.forEach(<span class="function"><span class="params">hook</span> =&gt;</span> &#123;</span><br><span class="line">  strats[hook] = mergeHook</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">ASSET_TYPES.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">type</span>) </span>&#123;</span><br><span class="line">  strats[type + <span class="string">'s'</span>] = mergeAssets</span><br><span class="line">&#125;</span><br><span class="line">stracts.watch = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="comment">//...&#125;</span></span><br><span class="line"></span><br><span class="line">strats.props =</span><br><span class="line">strats.methods =</span><br><span class="line">strats.inject =</span><br><span class="line">strats.computed = <span class="function"><span class="keyword">function</span> (<span class="params"></span>)</span>&#123;<span class="comment">//...&#125;</span></span><br><span class="line"></span><br><span class="line">strats.provide = mergeDataOrFn</span><br></pre></td></tr></table></figure>
+<p>我们可以看见这个文件在<code>strats</code>上面定义<code>Vue</code>上面一些<code>options</code>的参数的处理函数,上面还有两个循环,先找到<code>LIFECYCLE_HOOKS</code>和<code>ASSET_TYPES</code>:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> ASSET_TYPES = [</span><br><span class="line">  <span class="string">'component'</span>,</span><br><span class="line">  <span class="string">'directive'</span>,</span><br><span class="line">  <span class="string">'filter'</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> LIFECYCLE_HOOKS = [</span><br><span class="line">  <span class="string">'beforeCreate'</span>,</span><br><span class="line">  <span class="string">'created'</span>,</span><br><span class="line">  <span class="string">'beforeMount'</span>,</span><br><span class="line">  <span class="string">'mounted'</span>,</span><br><span class="line">  <span class="string">'beforeUpdate'</span>,</span><br><span class="line">  <span class="string">'updated'</span>,</span><br><span class="line">  <span class="string">'beforeDestroy'</span>,</span><br><span class="line">  <span class="string">'destroyed'</span>,</span><br><span class="line">  <span class="string">'activated'</span>,</span><br><span class="line">  <span class="string">'deactivated'</span>,</span><br><span class="line">  <span class="string">'errorCaptured'</span>,</span><br><span class="line">  <span class="string">'serverPrefetch'</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>可以看见这两个数组第一个是Vue的资源选项,第二个是钩子函数选项,同时分别赋值为<code>mergeAssets</code>和<code>mergeHook</code>函数,先回到原函数,等下再来讲这两个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mergeField</span> (<span class="params">key</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">const</span> strat = strats[key] || defaultStrat</span><br><span class="line">   options[key] = strat(parent[key], child[key], vm, key)</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到如果出现没有定义过的<code>options</code>选项,则将<code>strat</code>赋值为<code>defaultStrat</code>,然后执行<code>strat</code>函数,将结果返回给对应的<code>options</code>选项.<br>接下来我们来讲<code>strats</code>和<code>defaultStrat</code>我们先找到<code>defaultStrat</code>:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> defaultStrat = <span class="function"><span class="keyword">function</span> (<span class="params">parentVal: any, childVal: any</span>): <span class="title">any</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> childVal === <span class="literal">undefined</span></span><br><span class="line">    ? parentVal</span><br><span class="line">    : childVal</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数很简单,优先使用自身对应的属性,自身不存在就返回祖辈的,接下来看<code>strats</code>,我们先看<code>strats.props</code>,<code>strats.methods</code>,<code>strats.inject</code>,<code>strats.computed</code>,这几个选项对应同一个<code>function</code>,我们打开这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">strats.props =</span><br><span class="line">strats.methods =</span><br><span class="line">strats.inject =</span><br><span class="line">strats.computed = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  parentVal: ?Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  childVal: ?Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  vm?: Component,</span></span></span><br><span class="line"><span class="function"><span class="params">  key: string</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): ?<span class="title">Object</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (childVal &amp;&amp; process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">    assertObjectType(key, childVal, vm)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!parentVal) <span class="keyword">return</span> childVal</span><br><span class="line">  <span class="keyword">const</span> ret = <span class="built_in">Object</span>.create(<span class="literal">null</span>)</span><br><span class="line">  extend(ret, parentVal)</span><br><span class="line">  <span class="keyword">if</span> (childVal) extend(ret, childVal)</span><br><span class="line">  <span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先,如果处于开发环境且子<code>options</code>选项存在,则执行<code>assertObjectType(key, childVal, vm)</code>,我们找到这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">assertObjectType</span> (<span class="params">name: string, value: any, vm: ?Component</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!isPlainObject(value)) &#123;</span><br><span class="line">    warn(</span><br><span class="line">      <span class="string">`Invalid value for option "<span class="subst">$&#123;name&#125;</span>": expected an Object, `</span> +</span><br><span class="line">      <span class="string">`but got <span class="subst">$&#123;toRawType(value)&#125;</span>.`</span>,</span><br><span class="line">      vm</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个函数判断如果<code>value</code>即选项的值不是对象,则会给出对应的警告,回到原函数,然后判断父辈<code>options</code>是否存在,如果不存在则直接返回子<code>options</code>,然后新建了一个对象<code>ret</code>并将<code>parentVal</code>的值赋给<code>ret</code>,然后再使用<code>extend</code>函数将子<code>options</code>合并到<code>ret</code>上并返回<code>ret</code>.<br>下面我们看一下钩子函数的合并策略:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LIFECYCLE_HOOKS.forEach(<span class="function"><span class="params">hook</span> =&gt;</span> &#123;</span><br><span class="line">  strats[hook] = mergeHook</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>找到<code>mergeHook</code>这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mergeHook</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  parentVal: ?Array&lt;Function&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  childVal: ?Function | ?Array&lt;Function&gt;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): ?<span class="title">Array</span>&lt;<span class="title">Function</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> res = childVal</span><br><span class="line">    ? parentVal</span><br><span class="line">      ? parentVal.concat(childVal)</span><br><span class="line">      : <span class="built_in">Array</span>.isArray(childVal)</span><br><span class="line">        ? childVal</span><br><span class="line">        : [childVal]</span><br><span class="line">    : parentVal</span><br><span class="line">  <span class="keyword">return</span> res</span><br><span class="line">    ? dedupeHooks(res)</span><br><span class="line">    : res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里面是一个很长的三元表达式,虽然很长,但是这个书写还是很规范的,首先如果子<code>options</code>没有提供钩子函数,那么就直接使用父辈上面的默认钩子函数,否则,判断父辈是否有对应的钩子函数,如果有,则将子辈的函数和父辈的拼接到一个数组里面,否则判断子辈是否是一个数组,不是的话将其放入一个新数组里面,所以,从这里我们可以看出,钩子函数是可以这么写的:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">created:[</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">one</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'one'</span>)</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">two</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'two'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>返回结果又是一个三元表达式,如果res有值,则执行<code>dedupeHooks</code>函数,否则直接返回res,我们找到<code>dedupeHooks</code>函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">dedupeHooks</span> (<span class="params">hooks</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> res = []</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; hooks.length; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (res.indexOf(hooks[i]) === <span class="number">-1</span>) &#123;</span><br><span class="line">      res.push(hooks[i])</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一步是为了去除同名的函数<br>我们接着看资源选项的合并:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ASSET_TYPES.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">type</span>) </span>&#123;</span><br><span class="line">  strats[type + <span class="string">'s'</span>] = mergeAssets</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>找到<code>mergeAssets</code>函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">mergeAssets</span> (<span class="params">  </span></span></span><br><span class="line"><span class="function"><span class="params">  parentVal: ?Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  childVal: ?Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  vm?: Component,</span></span></span><br><span class="line"><span class="function"><span class="params">  key: string</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Object</span> </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="built_in">Object</span>.create(parentVal || <span class="literal">null</span>)</span><br><span class="line">  <span class="keyword">if</span> (childVal) &#123;</span><br><span class="line">    process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; assertObjectType(key, childVal, vm)</span><br><span class="line">    <span class="keyword">return</span> extend(res, childVal)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数首先以parentVal为原型创建一个新对象res,如果子选项不存在则直接返回res,否则,如果在开发环境下就先执行<code>assetObjectType</code>函数我们找到这个函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">assertObjectType</span> (<span class="params">name: string, value: any, vm: ?Component</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!isPlainObject(value)) &#123;</span><br><span class="line">    warn(</span><br><span class="line">      <span class="string">`Invalid value for option "<span class="subst">$&#123;name&#125;</span>": expected an Object, `</span> +</span><br><span class="line">      <span class="string">`but got <span class="subst">$&#123;toRawType(value)&#125;</span>.`</span>,</span><br><span class="line">      vm</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数用于检查子选项的值是不是一个对象,回到原函数.<br>然后执行<code>extend</code>将res和<code>childVal</code>合并并返回!</p>
+<p>下面我们再来看<code>watch</code>的合并,找到<code>strats.watch</code>函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">strats.watch = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  parentVal: ?Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  childVal: ?Object,</span></span></span><br><span class="line"><span class="function"><span class="params">  vm?: Component,</span></span></span><br><span class="line"><span class="function"><span class="params">  key: string</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): ?<span class="title">Object</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是其函数签名,接着往下看:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (parentVal === nativeWatch) parentVal = <span class="literal">undefined</span></span><br><span class="line"><span class="keyword">if</span> (childVal === nativeWatch) childVal = <span class="literal">undefined</span></span><br><span class="line"><span class="comment">/* istanbul ignore if */</span></span><br><span class="line"><span class="keyword">if</span> (!childVal) <span class="keyword">return</span> <span class="built_in">Object</span>.create(parentVal || <span class="literal">null</span>)</span><br><span class="line"><span class="keyword">if</span> (process.env.NODE_ENV !== <span class="string">'production'</span>) &#123;</span><br><span class="line">  assertObjectType(key, childVal, vm)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (!parentVal) <span class="keyword">return</span> childVal</span><br></pre></td></tr></table></figure>
+
+<p>首先判断父子选项的值是不是等于<code>nativeWatch</code>,那么这个<code>nativeWatch</code>是什么呢?其实,在火狐浏览器中对象的原型上面是有<code>watch</code>这个选项的,这里是为了区分开来.然后,判断子选项是否存在,不存在则直接以父选项为原型创建一个新对象然后返回,接着又是调用了<code>assetsObjectType</code>去判断子选项是否为一个对象,接着有判断父选项是否存在,返回子选项,接着使用<code>extend</code>函数将父选项合并到<code>ret</code>上面,然后遍历子选项,如果父选项和子选项有同一个监听对象,那么就将其合并到一个数组里面.然后返回合并后的<code>ret</code>所以,<code>watch</code>对象我们也可以这么写:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">watch:&#123;</span><br><span class="line">  <span class="string">'a'</span>:[</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">one</span>(<span class="params"></span>)</span>&#123;&#125;,</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">two</span>(<span class="params"></span>)</span>&#123;&#125;</span><br><span class="line">  ]</span><br><span class="line">  <span class="string">'b'</span>:<span class="function"><span class="keyword">function</span> <span class="title">other</span>(<span class="params"></span>)</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面就只有<code>provide</code>和<code>data</code>了:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">strats.provide = mergeDataOrFn</span><br><span class="line"></span><br><span class="line">strats.data = <span class="function"><span class="keyword">function</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  parentVal: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  childVal: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  vm?: Component</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): ?<span class="title">Function</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!vm) &#123;</span><br><span class="line">    <span class="keyword">if</span> (childVal &amp;&amp; <span class="keyword">typeof</span> childVal !== <span class="string">'function'</span>) &#123;</span><br><span class="line">      process.env.NODE_ENV !== <span class="string">'production'</span> &amp;&amp; warn(</span><br><span class="line">        <span class="string">'The "data" option should be a function '</span> +</span><br><span class="line">        <span class="string">'that returns a per-instance value in component '</span> +</span><br><span class="line">        <span class="string">'definitions.'</span>,</span><br><span class="line">        vm</span><br><span class="line">      )</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> parentVal</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mergeDataOrFn(parentVal, childVal)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> mergeDataOrFn(parentVal, childVal, vm)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们可以发现在初始化一个组件的时候,,组件初始化是没有<code>VM</code>这个参数的,然后如果子选项存在,就会去判断子选项是否是一个函数,不是的话就会直接返回父选项,组件的data必须使用函数是因为data是一个对象,如果组件被多处引用,使用的是同一个对象,所以必须使用一个工厂函数去返回一个对象去保证对象的唯一,然后返回一个函数<code>mergeDataorFn</code>.同时可以看出组件和实例的区别就是是否传递第三个<code>vm</code>参数,而我们看<code>strats.provide</code>,也是使用的这个函数去处理,那么接下来我们去看看这个函数<code>mergeDataorFn</code>:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">mergeDataOrFn</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  parentVal: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  childVal: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  vm?: Component</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): ?<span class="title">Function</span> </span>&#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个是其函数签名,接着看起内容的起一个分支:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!vm) &#123;</span><br><span class="line">  <span class="comment">// in a Vue.extend merge, both should be functions</span></span><br><span class="line">  <span class="keyword">if</span> (!childVal) &#123;</span><br><span class="line">    <span class="keyword">return</span> parentVal</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!parentVal) &#123;</span><br><span class="line">    <span class="keyword">return</span> childVal</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// when parentVal &amp; childVal are both present,</span></span><br><span class="line">  <span class="comment">// we need to return a function that returns the</span></span><br><span class="line">  <span class="comment">// merged result of both functions... no need to</span></span><br><span class="line">  <span class="comment">// check if parentVal is a function here because</span></span><br><span class="line">  <span class="comment">// it has to be a function to pass previous merges.</span></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">mergedDataFn</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mergeData(</span><br><span class="line">      <span class="keyword">typeof</span> childVal === <span class="string">'function'</span> ? childVal.call(<span class="keyword">this</span>, <span class="keyword">this</span>) : childVal,</span><br><span class="line">      <span class="keyword">typeof</span> parentVal === <span class="string">'function'</span> ? parentVal.call(<span class="keyword">this</span>, <span class="keyword">this</span>) : parentVal</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个分支的进入条件是没有传递<code>vm</code>参数,我们前面提到过了,<code>vm</code>参数只有在处理Vue实例的时候才有,处理组件的时候是没有的,同时返回一个函数<code>mergeDataFn</code>,我们可以先看第二个<code>else</code>分支,至于<code>mergeData</code>等下再看:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">mergedInstanceDataFn</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// instance merge</span></span><br><span class="line">      <span class="keyword">const</span> instanceData = <span class="keyword">typeof</span> childVal === <span class="string">'function'</span></span><br><span class="line">        ? childVal.call(vm, vm)</span><br><span class="line">        : childVal</span><br><span class="line">      <span class="keyword">const</span> defaultData = <span class="keyword">typeof</span> parentVal === <span class="string">'function'</span></span><br><span class="line">        ? parentVal.call(vm, vm)</span><br><span class="line">        : parentVal</span><br><span class="line">      <span class="keyword">if</span> (instanceData) &#123;</span><br><span class="line">        <span class="keyword">return</span> mergeData(instanceData, defaultData)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> defaultData</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>我们发现处理Vue实例的时候也是返回一个函数,仔细对比一下第一个分支,其实是相似的,唯一的区别在于,如果在处理实例的时候,没有传递子选项,那么会直接返回父选项,不用执行合并函数,同时前者是直接执行了<code>mergeData</code>函数,后者是返回<code>mergeData</code>函数,以上我们可知,在进行<code>provide</code>和<code>data</code>合并的时候,会先将<code>data</code>赋值为一个函数,至于为什么,大家知道,我们在写<code>data</code>里面的数据的时候,其实是可以使用<code>props</code>和<code>inject</code>里面的数值的所以,为了保证一点,就必须确保在<code>data</code>初始化之前,<code>props</code>和<code>inject</code>都已经初始化完了.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>至此,整个<code>options</code>的初始化都已经完成了,如有任何发现任何问题可以联系我!谢谢!</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/22/Vue%E6%BA%90%E7%A0%81%E6%97%A5%E8%AE%B0-1-%E5%8E%9F%E5%9E%8B%E5%88%9D%E5%A7%8B%E5%8C%96/" rel="prev" title="Vue源码日记(1)-原型初始化">
+      <i class="fa fa-chevron-left"></i> Vue源码日记(1)-原型初始化
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一个简单实例的初始化"><span class="nav-number">1.</span> <span class="nav-text">一个简单实例的初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">John</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+  <div class="sidebar-button motion-element"><i class="fa fa-comment"></i>
+    Chat
+  </a>
+  </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Johnkun1314" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Johnkun1314" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/wellkun@163.com" title="E-Mail → wellkun@163.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/1617031887" title="QQ → 1617031887"><i class="fa fa-fw fa-qq"></i>QQ</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://b.wellkun.com/atom.xml" title="RSS → https:&#x2F;&#x2F;b.wellkun.com&#x2F;atom.xml" rel="noopener" target="_blank"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+<a href="http://www.beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备18052753号</a><br/>
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John</span>
+</div>
+  <div class="theme-info">Theme – <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.6.0
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#valine-comments',
+      verify: false,
+      notify: false,
+      appId: 'E6xSsCXlePB9j25pEYFqzYxS-gzGzoHsz',
+      appKey: 'G12fdqLFsCLGeGVmIK37Ajnw',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: false,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
