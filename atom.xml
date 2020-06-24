@@ -173,9 +173,9 @@
     
     
     
-      <category term="vue" scheme="http://yoursite.com/tags/vue/"/>
-    
       <category term="webpack" scheme="http://yoursite.com/tags/webpack/"/>
+    
+      <category term="vue" scheme="http://yoursite.com/tags/vue/"/>
     
       <category term="svg" scheme="http://yoursite.com/tags/svg/"/>
     
